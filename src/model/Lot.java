@@ -6,18 +6,23 @@ public class Lot {
 	private int mCapcity;
 	private int mFloors;
 	
-	public Lot(String theLotName, String theLocation, int theCapacity, int theFloors) {
-		this.mLotName = theLocation;
-		this.mLocation = theLocation;
-		this.mCapcity = theCapacity;
-		this.mFloors = theFloors;
+	public Lot(final String theLotName, final String theLocation, 
+			final int theCapacity, final int theFloors) {
+		
 	}
 	
 	public void setLotName(final String theName) {
 		if (theName == null || theName.length() == 0) {
-			
+			throw new IllegalArgumentException("Please supply a valid lot name.");
 		}
+		this.mLotName = theName;
 	}
 	
+	public void setLocation(final String theLocation) {
+		if (theLocation == null || theLocation.length() == 0) {
+			throw new IllegalArgumentException("Please supply a valid location.");
+		}
+		this.mLocation = theLocation;
+	}
 	
 }
