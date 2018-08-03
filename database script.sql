@@ -1,41 +1,41 @@
-CREATE TABLE LOT (
+CREATE TABLE Lot (
   lotName VARCHAR(20) PRIMARY KEY,
   location VARCHAR(20),
   capacity INT,
   floors INT
 );
 
-CREATE TABLE SPACE (
+CREATE TABLE Space (
   spaceNumber INT PRIMARY KEY,
   spaceType VARCHAR(20),
-  lotName VARCHAR(20) REFERENCES LOT(lotName)
+  lotName VARCHAR(20) REFERENCES Lot(lotName)
 );
 
-CREATE TABLE COVERED_SPACE (
-  spaceNumber INT PRIMARY KEY REFERENCES SPACE(spaceNumber),
+CREATE TABLE CoveredSpace (
+  spaceNumber INT PRIMARY KEY REFERENCES Space(spaceNumber),
   monthlyRate FLOAT
 );
 
-CREATE TABLE UNCOVERED_SPACE (
-  spaceNumber INT PRIMARY KEY REFERENCES SPACE(spaceNumber)
+CREATE TABLE UncoveredSpace (
+  spaceNumber INT PRIMARY KEY REFERENCES Space(spaceNumber)
 );
 
-CREATE TABLE STAFF_SPACE (
-  staffNumber INT REFERENCES STAFF(staffNumber),
-  spaceNumber INT REFERENCES COVERED_SPACE(spaceNumber),
+CREATE TABLE StaffSpace (
+  staffNumber INT REFERENCES Staff(staffNumber),
+  spaceNumber INT REFERENCES CoveredSpace(spaceNumber),
   PRIMARY KEY (staffNumber, spaceNumber)
 );
 
-CREATE TABLE STAFF (
+CREATE TABLE Staff (
   staffNumber INT PRIMARY KEY,
   telephoneExt INT,
   vehicleLicenseNumber VARCHAR(20)
 );
 
-CREATE TABLE SPACE_BOOKING (
+CREATE TABLE SpaceBooking (
   bookingID INT PRIMARY KEY,
-  spaceNumber INT REFERENCES COVERED_SPACE(spaceNumber),
-  staffNumber INT REFERENCES STAFF(staffNumber),
+  spaceNumber INT REFERENCES CoveredSpace(spaceNumber),
+  staffNumber INT REFERENCES Staff(staffNumber),
   visitorLicense VARCHAR(20),
   dateOfVisit DATETIME
 );
