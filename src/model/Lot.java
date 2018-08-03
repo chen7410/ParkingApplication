@@ -15,7 +15,7 @@ public class Lot {
 	
 	public void setLotName(final String theName) {
 		if (theName == null || theName.length() == 0) {
-			throw
+			
 		}
 	}
 	
