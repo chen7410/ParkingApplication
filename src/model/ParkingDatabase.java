@@ -93,12 +93,12 @@ public class ParkingDatabase {
 		}
 		
 		/**
-		 * Adds a new movie to the table.
+		 * Adds a new lot to the table.
 		 * @param theLot 
 		 * @throws Exception 
 		 */
 		public void addLot(Lot theLot) throws Exception {
-			String sql = "INSERT Lot VALUES " + "(?, ?, ?, ?, ?); ";
+			String sql = "INSERT Lot VALUES " + "(?, ?, ?, ?); ";
 
 			PreparedStatement preparedStatement = null;
 			try {
@@ -143,5 +143,10 @@ public class ParkingDatabase {
 //				throw new Exception("Unable to add Movie: " + e.getMessage());
 //			} 
 			
+		}
+
+		public List<Object> getSpaces() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 }

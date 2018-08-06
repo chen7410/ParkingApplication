@@ -1,5 +1,4 @@
 
-
 CREATE TABLE Lot (
   lotName VARCHAR(20) PRIMARY KEY,
   location VARCHAR(20),
@@ -7,13 +6,11 @@ CREATE TABLE Lot (
   floors INT
 );
 
-
 INSERT Lot VALUES
 ('North Lot', 'UWT', 200, 3),
 ('South Lot', 'UWT', 200, 3),
 ('East Lot', 'UWT', 200, 3),
 ('West Lot', 'UWT', 200, 3);
-
 
 CREATE TABLE Space (
   spaceNumber INT PRIMARY KEY,
@@ -21,14 +18,13 @@ CREATE TABLE Space (
   lotName VARCHAR(20) REFERENCES Lot(lotName)
 );
 
-
 INSERT Space VALUES
 (1, 'uncover', 'North Lot'),
 (2, 'uncover', 'North Lot'),
 (3, 'cover', 'North Lot'),
 (4, 'cover', 'North Lot');
 
-CREATE TABLE COVERED_SPACE (
+CREATE TABLE CoveredSpace (
   spaceNumber INT PRIMARY KEY REFERENCES SPACE(spaceNumber),
   monthlyRate FLOAT
 );
@@ -37,7 +33,7 @@ INSERT CoveredSpace VALUES
 (3, 100.0),
 (4, 100.0);
 
-CREATE TABLE UNCOVERED_SPACE (
+CREATE TABLE UncoveredSpace (
   spaceNumber INT PRIMARY KEY REFERENCES SPACE(spaceNumber)
 );
 
@@ -45,7 +41,7 @@ INSERT UncoveredSpace VALUES
 (1),
 (2);
 
-CREATE TABLE STAFF_SPACE (
+CREATE TABLE StaffSpace (
   staffNumber INT REFERENCES STAFF(staffNumber),
   spaceNumber INT REFERENCES COVERED_SPACE(spaceNumber),
   PRIMARY KEY (staffNumber, spaceNumber)
@@ -54,22 +50,6 @@ CREATE TABLE STAFF_SPACE (
 INSERT StaffSpace VALUES
 (000, 3),
 (001, 4);
-
-
-CREATE TABLE CoveredSpace (
-  spaceNumber INT PRIMARY KEY REFERENCES Space(spaceNumber),
-  monthlyRate FLOAT
-);
-
-CREATE TABLE UncoveredSpace (
-  spaceNumber INT PRIMARY KEY REFERENCES Space(spaceNumber)
-);
-
-CREATE TABLE StaffSpace (
-  staffNumber INT REFERENCES Staff(staffNumber),
-  spaceNumber INT REFERENCES CoveredSpace(spaceNumber),
-  PRIMARY KEY (staffNumber, spaceNumber)
-);
 
 CREATE TABLE Staff (
   staffNumber INT PRIMARY KEY,
