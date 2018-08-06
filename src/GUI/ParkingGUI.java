@@ -133,7 +133,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 		String columnName = model.getColumnName(col);
 		Object data = model.getValueAt(row, col);
 		try {
-			//TODO update
+			db.updateLot(row, columnName, data);
 		} catch (Exception theException) {
 			JOptionPane.showMessageDialog(this, theException.getMessage());
 			return;

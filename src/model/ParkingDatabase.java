@@ -15,12 +15,12 @@ import java.util.List;
  * @author Matthew Chen,
  */
 public class ParkingDatabase {
-//	private static String userName = "tuandinh";
-//	private static String password = "tuandinh";
-//	private static String serverName = "parkinglot.cfjkfmfnydy4.us-east-2.rds.amazonaws.com:3306/PARKING";
-	private static String userName = "chen7410"; //TODO - Change to yours
-	private static String password = "AsgufNum"; //TODO - Change to yours
-	private static String serverName = "cssgate.insttech.washington.edu/chen7410"; //TODO - Change to yours
+	private static String userName = "tuandinh";
+	private static String password = "tuandinh";
+	private static String serverName = "parkinglot.cfjkfmfnydy4.us-east-2.rds.amazonaws.com:3306/PARKING";
+//	private static String userName = "chen7410"; //TODO - Change to yours
+//	private static String password = "AsgufNum"; //TODO - Change to yours
+//	private static String serverName = "cssgate.insttech.washington.edu/chen7410"; //TODO - Change to yours
 	private static Connection sConnection;
 	private List<Lot> mLots;
 	private List<Space> mSpaces;
@@ -184,15 +184,29 @@ public class ParkingDatabase {
 
 
 	/**
-	 * Modifies the movie information corresponding to the index in the list.
+	 * Modifies the lot information corresponding to the index in the list.
 	 *
 	 * @param row        index of the element in the list
 	 * @param columnName attribute to modify
 	 * @param data       value to supply
 	 * @throws Exception
 	 */
-	public void updateMovie(int row, String columnName, Object data) throws Exception {
-
+	public void updateLot(int row, String columnName, Object data) throws Exception {
+		Lot lot = mLots.get(row);
+		String lotName = lot.getLotName();
+		String sql = "update Lot set " + columnName + " = ?  where lotName = ? ";
+		PreparedStatement preparedStatement = null;
+		try {
+			preparedStatement = sConnection.prepareStatement(sql);
+			if (data instanceof String) {
+				preparedStatement.setString(1, (String) data);
+			}
+			preparedStatement.setString(2, lotName);
+			preparedStatement.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new Exception("Unable to add Movie: " + e.getMessage());
+		} 
 	}
 
 	
