@@ -15,11 +15,15 @@ import java.util.List;
  * @author Matthew Chen,
  */
 public class ParkingDatabase {
-	private static String userName = "tuandinh";
-	private static String password = "tuandinh";
-	private static String serverName = "parkinglot.cfjkfmfnydy4.us-east-2.rds.amazonaws.com:3306/PARKING";
+//	private static String userName = "tuandinh";
+//	private static String password = "tuandinh";
+//	private static String serverName = "parkinglot.cfjkfmfnydy4.us-east-2.rds.amazonaws.com:3306/PARKING";
+	private static String userName = "chen7410"; //TODO - Change to yours
+	private static String password = "AsgufNum"; //TODO - Change to yours
+	private static String serverName = "cssgate.insttech.washington.edu/chen7410"; //TODO - Change to yours
 	private static Connection sConnection;
 	private List<Lot> mLots;
+	private List<Space> mSpaces;
 
 	/**
 	 * Creates a sql connection to MySQL using the properties for
@@ -34,6 +38,43 @@ public class ParkingDatabase {
 		System.out.println("Connected to database");
 	}
 
+	/**
+	 * Returns a list of space objects from the database.
+	 *
+	 * @return list of space
+	 * @throws Exception
+	 */
+	public List<Space> getSpaces() throws Exception {
+		if (sConnection == null) {
+			createConnection();
+		}
+
+		Statement statement = null;
+		String query = "SELECT * FROM Space";
+		mSpaces = new ArrayList<Space>();
+
+		try {
+			statement = sConnection.createStatement();
+			ResultSet result = statement.executeQuery(query);
+			while (result.next()) {
+				int spaceNumber = result.getInt("spaceNumber");
+				String spaceType = result.getString("spaceType");
+				String lotName = result.getString("lotName");
+
+				Space lot = new Space(spaceNumber, spaceType, lotName);
+				mSpaces.add(lot);
+			}
+		} catch (SQLException theException) {
+			theException.printStackTrace();
+			throw new Exception("Unable to retrieve list of lots" + theException.getMessage());
+		} finally {
+			if (statement != null) {
+				statement.close();
+			}
+		}
+		return mSpaces;
+	}
+	
 	/**
 	 * Returns a list of lot objects from the database.
 	 *
@@ -96,13 +137,36 @@ public class ParkingDatabase {
 	}
 
 	/**
-	 * Adds a new movie to the table.
+	 * Adds a new space to the Space table.
+	 *
+	 * @param theSpace
+	 * @throws Exception
+	 */
+	public void addSpace(final Space theSpace) throws Exception {
+		String sql = "INSERT Space VALUES " + "(?, ?, ?); ";
+
+		PreparedStatement preparedStatement = null;
+		try {
+			preparedStatement = sConnection.prepareStatement(sql);
+			preparedStatement.setInt(1, theSpace.getSpaceNumber());
+			preparedStatement.setString(2, theSpace.getSpaceType());
+			preparedStatement.setString(3, theSpace.getLotName());
+			preparedStatement.executeUpdate();
+		} catch (SQLException theException) {
+			theException.printStackTrace();
+			throw new Exception("Unable to add Space: " + theException.getMessage());
+		}
+	}
+	
+	
+	/**
+	 * Adds a new lot to the Lot table.
 	 *
 	 * @param theLot
 	 * @throws Exception
 	 */
 	public void addLot(Lot theLot) throws Exception {
-		String sql = "INSERT Lot VALUES " + "(?, ?, ?, ?, ?); ";
+		String sql = "INSERT Lot VALUES " + "(?, ?, ?, ?); ";
 
 		PreparedStatement preparedStatement = null;
 		try {
@@ -131,9 +195,6 @@ public class ParkingDatabase {
 
 	}
 
-	public List<Space> getSpaces() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 
 }

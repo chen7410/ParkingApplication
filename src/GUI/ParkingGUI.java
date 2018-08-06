@@ -13,6 +13,7 @@ import javax.swing.table.TableModel;
 
 import model.Lot;
 import model.ParkingDatabase;
+import model.Space;
 
 /**
  * A user interface to view the movies, add a new movie and to update an existing movie.
@@ -34,7 +35,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
             "location",
             "capacity",
             "floors"};
-	private List<Object> mSpaces;
+	private List<Space> mSpaces;
 	private String[] mSpaceColNames = {"spaceNumber",
             "spaceType",
             "lotName"};
@@ -48,8 +49,8 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 	private JButton btnLotSearch;
 	
 	private JPanel pnlAddLot;
-	private JLabel[] txfLabel = new JLabel[5];
-	private JTextField[] txfField = new JTextField[5];
+	private JLabel[] txfLabel = new JLabel[4];
+	private JTextField[] txfField = new JTextField[4];
 	private JButton mBtnAddLot, mBtnAddSpace, mBtnAddStaff;
 	
 	private JButton mBtnSpaceList, mBtnSpaceSearch;
@@ -92,6 +93,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 		db = new ParkingDatabase();
 		try
 		{
+			
 			mLots = db.getLots();
 			
 			data = new Object[mLots.size()][mLotColNames.length];
@@ -112,6 +114,32 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 		setVisible(true);
 		setSize(700, 500);
 	}
+	
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args)
+	{
+		ParkingGUI parkingGUI = new ParkingGUI();
+		parkingGUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+	}
+
+	@Override
+	public void tableChanged(TableModelEvent theEvent) {
+		int row = theEvent.getFirstRow();
+		int col = theEvent.getColumn();
+		TableModel model = (TableModel)theEvent.getSource();
+		String columnName = model.getColumnName(col);
+		Object data = model.getValueAt(row, col);
+		try {
+			//TODO update
+		} catch (Exception theException) {
+			JOptionPane.showMessageDialog(this, theException.getMessage());
+			return;
+		}
+	}
+
     
 	/**
 	 * Creates panels for Movie list, search, add and adds the corresponding 
@@ -203,6 +231,89 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 		
 		
 	}
+	
+	@Override
+	public void actionPerformed(final ActionEvent theEvent) {
+		JButton btn = (JButton) theEvent.getSource();
+		
+		if (btn == mBtnLotList) {
+			lotListAction();
+			
+		} else if (btn == mBtnLotSearch) {
+			loadPanel(pnlLotSearch);
+			
+		} else if (btn == mBtnAddLot) {
+			addLotAction();
+			
+		} else if (btn == mBtnSpaceList) {
+			spaceListAction();
+			
+		} else if (btn == mBtnSpaceSearch) {
+			loadPanel(pnlSpaceSearch);
+			
+		} else if (btn == mBtnAddSpace) {
+			addSpaceAction();
+			
+		} else if (btn == mBtnStaffList) {
+			staffListAction();
+			
+		} else if (btn == mBtnStaffSearch) {
+			loadPanel(pnlStaffSearch);
+			
+		} else if (btn == mBtnAddStaff) {
+			
+		} else if (btn == mBtnReserveParking) {
+			showAvailableParking();
+			
+		} else if (btn == mBtnAssignStaffParking) {
+			loadPanel(pnlAssignStaffParking);
+		}
+		
+	}
+
+	/**
+	 * insert a new tuple to the database, space table, 
+	 * and populate the GUI again.
+	 * 
+	 */
+	private void addSpaceAction() {
+		Space space = new Space(Integer.parseInt(txfAddSpaceField[0].getText()), 
+				txfAddSpaceField[1].getText(), txfAddSpaceField[2].getText());
+		try {
+			db.addSpace(space);
+		}
+		catch(Exception exception) {
+			JOptionPane.showMessageDialog(this, exception.getMessage());
+			return;
+		}
+		JOptionPane.showMessageDialog(null, "Added Successfully!");
+		for (int i=0; i<txfAddSpaceField.length; i++) {
+			txfAddSpaceField[i].setText("");
+		}
+		spaceListAction();
+	}
+	
+	/**
+	 * insert a new tuple to the database, lot table, 
+	 * and populate the GUI again.
+	 * 
+	 */
+	private void addLotAction() {
+		Lot lot = new Lot(txfField[0].getText(), txfField[1].getText(),
+				Integer.parseInt(txfField[2].getText()), Integer.parseInt(txfField[3].getText()));
+		try {
+			db.addLot(lot);
+		}
+		catch(Exception exception) {
+			JOptionPane.showMessageDialog(this, exception.getMessage());
+			return;
+		}
+		JOptionPane.showMessageDialog(null, "Added Successfully!");
+		for (int i=0; i<txfField.length; i++) {
+			txfField[i].setText("");
+		}
+		lotListAction();
+	}
 
 	private void createPanelAssignStaffParking() {
 		pnlAssignStaffParking = new JPanel();
@@ -282,9 +393,9 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 			pnlAddSpace.add(panel);
 		}
 		JPanel panel = new JPanel();
-		btnAddSpace = new JButton("Add Space");
-		btnAddSpace.addActionListener(this);
-		panel.add(btnAddSpace);
+		mBtnAddSpace = new JButton("Add Space");
+		mBtnAddSpace.addActionListener(this);
+		panel.add(mBtnAddSpace);
 		pnlAddSpace.add(panel);
 	}
 
@@ -324,68 +435,6 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 	}
 	
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args)
-	{
-		ParkingGUI parkingGUI = new ParkingGUI();
-		parkingGUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-	}
-
-	@Override
-	public void tableChanged(TableModelEvent theEvent) {
-		int row = theEvent.getFirstRow();
-		int col = theEvent.getColumn();
-		TableModel model = (TableModel)theEvent.getSource();
-		String columnName = model.getColumnName(col);
-		Object data = model.getValueAt(row, col);
-		try {
-			//TODO update
-		} catch (Exception theException) {
-			JOptionPane.showMessageDialog(this, theException.getMessage());
-			return;
-		}
-	}
-
-	@Override
-	public void actionPerformed(final ActionEvent theEvent) {
-		JButton btn = (JButton) theEvent.getSource();
-		
-		if (btn == mBtnLotList) {
-			lotListAction();
-			
-		} else if (btn == mBtnLotSearch) {
-			loadPanel(pnlLotSearch);
-			
-		} else if (btn == mBtnAddLot) {
-			
-			
-		} else if (btn == mBtnSpaceList) {
-			spaceListAction();
-			
-		} else if (btn == mBtnSpaceSearch) {
-			loadPanel(pnlSpaceSearch);
-			
-		} else if (btn == mBtnAddSpace) {
-			
-		} else if (btn == mBtnStaffList) {
-			staffListAction();
-			
-		} else if (btn == mBtnStaffSearch) {
-			loadPanel(pnlStaffSearch);
-			
-		} else if (btn == mBtnAddStaff) {
-			
-		} else if (btn == mBtnReserveParking) {
-			showAvailableParking();
-			
-		} else if (btn == mBtnAssignStaffParking) {
-			loadPanel(pnlAssignStaffParking);
-		}
-		
-	}
 
 
 	private void showAvailableParking() {
@@ -441,25 +490,23 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 	 * populate the space table.
 	 */
 	private void spaceListAction() {
-		//TODO change to populate the space table
 		try {
-			mLots = db.getLots();
+			mSpaces = db.getSpaces();
 		} catch (Exception exception) {
 			JOptionPane.showMessageDialog(this, exception.getMessage());
 			return;
 		}
 		
-		data = new Object[mLots.size()][mLotColNames.length];
-		for (int i=0; i<mLots.size(); i++) {
-			data[i][0] = mLots.get(i).getLotName();
-			data[i][1] = mLots.get(i).getLocation();
-			data[i][2] = mLots.get(i).getCapacity();
-			data[i][3] = mLots.get(i).getFloors();
+		data = new Object[mSpaces.size()][mSpaceColNames.length];
+		for (int i=0; i<mSpaces.size(); i++) {
+			data[i][0] = mSpaces.get(i).getSpaceNumber();
+			data[i][1] = mSpaces.get(i).getSpaceType();
+			data[i][2] = mSpaces.get(i).getLotName();
 		}
 		
 		pnlContent.removeAll();
 		pnlSouth.removeAll();
-		table = new JTable(data, mLotColNames);
+		table = new JTable(data, mSpaceColNames);
 		table.getModel().addTableModelListener(this);
 		scrollPane = new JScrollPane(table);
 		pnlContent.add(scrollPane);
