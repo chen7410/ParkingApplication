@@ -9,7 +9,7 @@ public class Space {
     public Space(final int theSpaceNumber, final String theSpaceType, 
     		final String theLotName) {
         if (theSpaceNumber <= 0) {
-            throw new IllegalArgumentException("Space number cannot be less than 1.");
+//            throw new IllegalArgumentException("Space number cannot be less than 1.");
         }
 
         if (theLotName.isEmpty()){

@@ -205,7 +205,34 @@ public class ParkingDatabase {
 			preparedStatement.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new Exception("Unable to add Movie: " + e.getMessage());
+			throw new Exception("Unable to add Lot: " + e.getMessage());
+		} 
+	}
+	
+	/**
+	 * Modifies the space information corresponding to the index in the list.
+	 *
+	 * @param row        index of the element in the list
+	 * @param columnName attribute to modify
+	 * @param data       value to supply
+	 * @throws Exception
+	 */
+	public void updateSpace(int row, String columnName, Object data) throws Exception {
+		Space space = mSpaces.get(row);
+		int spaceNumber = space.getSpaceNumber();
+		
+		String sql = "update Space set " + columnName + " = ?  where spaceNumber = ? ";
+		PreparedStatement preparedStatement = null;
+		try {
+			preparedStatement = sConnection.prepareStatement(sql);
+			if (data instanceof String) {
+				preparedStatement.setString(1, (String) data);
+			}
+			preparedStatement.setInt(2, spaceNumber);
+			preparedStatement.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new Exception("Unable to add Space: " + e.getMessage());
 		} 
 	}
 

@@ -1,10 +1,8 @@
 package GUI;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
@@ -26,7 +24,6 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 {
 	
 	private static final long serialVersionUID = -6829838052136488913L;
-	private static final JFrame AssignStaffParking = null;
 	private JButton mBtnLotList, mBtnLotSearch;
 	private JPanel pnlButtons, pnlContent;
 	private ParkingDatabase db;
@@ -41,7 +38,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
             "lotName"};
 	
 	private Object[][] data;
-	private JTable table;
+	private JTable mLotTable;
 	private JScrollPane scrollPane;
 	private JPanel pnlLotSearch;
 	private JLabel lblLotName;
@@ -73,7 +70,6 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 	private JPanel pnlAddSpace;
 	private JLabel[] txfAddSpaceLabel = new JLabel[3];
 	private JTextField[] txfAddSpaceField = new JTextField[3];
-	private JButton btnAddSpace;
 	private JPanel pnlAddStaff;
 	private JLabel[] txfAddStaffLabel = new JLabel[3];
 	private JTextField[] txfAddStaffField = new JTextField[3];
@@ -82,6 +78,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 	private JButton btnReserve;
 	private JLabel[] txfReserveParkingLabel = new JLabel[5];
 	private JTextField[] txfReverseParkingField = new JTextField[5];
+	private JTable mSpaceTable;
 	
 	
 	/**
@@ -133,7 +130,15 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 		String columnName = model.getColumnName(col);
 		Object data = model.getValueAt(row, col);
 		try {
-			db.updateLot(row, columnName, data);
+			if (theEvent.getSource() == mLotTable.getModel()) {
+				db.updateLot(row, columnName, data);
+//				System.out.println("updateLot");
+				
+			} else if (theEvent.getSource() == mSpaceTable.getModel()) {
+				db.updateSpace(row, columnName, data);
+//				System.out.println("updateSpace");
+			}
+			
 		} catch (Exception theException) {
 			JOptionPane.showMessageDialog(this, theException.getMessage());
 			return;
@@ -142,9 +147,10 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 
     
 	/**
-	 * Creates panels for Movie list, search, add and adds the corresponding 
+	 * Creates panels for all database tables and adds the corresponding 
 	 * components to each panel.
 	 */
+	@SuppressWarnings("serial")
 	private void createComponents()
 	{
 		pnlButtons = new JPanel();
@@ -174,9 +180,9 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 		mBtnAssignStaffParking.addActionListener(this);
 		
 		pnlButtons.add(mBtnLotList);
-		pnlButtons.add(mBtnLotSearch);
+//		pnlButtons.add(mBtnLotSearch);
 		pnlButtons.add(mBtnSpaceList);
-		pnlButtons.add(mBtnSpaceSearch);
+//		pnlButtons.add(mBtnSpaceSearch);
 		pnlButtons.add(mBtnStaffList);
 		pnlButtons.add(mBtnStaffSearch);
 		pnlButtons.add(mBtnReserveParking);
@@ -185,10 +191,16 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 		
 		//List Panel
 		pnlContent = new JPanel();
-		table = new JTable(data, mLotColNames);
-		scrollPane = new JScrollPane(table);
+		mLotTable = new JTable(data, mLotColNames) {
+		    @Override
+		    public boolean isCellEditable(int row, int column) {                
+		        return !(column == 0);               
+		    };
+		};
+		mLotTable.getTableHeader().setReorderingAllowed(false);
+		scrollPane = new JScrollPane(mLotTable);
 		pnlContent.add(scrollPane);
-		table.getModel().addTableModelListener(this);
+		mLotTable.getModel().addTableModelListener(this);
 		
 //		//Search Panel
 		createPanelLotSearch();
@@ -277,6 +289,14 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 	 * 
 	 */
 	private void addSpaceAction() {
+		if (Integer.parseInt(txfAddSpaceField[0].getText()) < 1) {
+			JOptionPane.showMessageDialog(this, "Space number must be greater than 0");
+			for (int i=0; i<txfAddSpaceField.length; i++) {
+				txfAddSpaceField[i].setText("");
+			}
+			return;
+		}
+		
 		Space space = new Space(Integer.parseInt(txfAddSpaceField[0].getText()), 
 				txfAddSpaceField[1].getText(), txfAddSpaceField[2].getText());
 		try {
@@ -299,6 +319,15 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 	 * 
 	 */
 	private void addLotAction() {
+		if (Integer.parseInt(txfField[2].getText()) < 1 ||
+				Integer.parseInt(txfField[3].getText()) < 1) {
+			JOptionPane.showMessageDialog(this, "Capacity and floors must be greater than 0");
+			for (int i=0; i<txfField.length; i++) {
+				txfField[i].setText("");
+			}
+			return;
+		}
+		
 		Lot lot = new Lot(txfField[0].getText(), txfField[1].getText(),
 				Integer.parseInt(txfField[2].getText()), Integer.parseInt(txfField[3].getText()));
 		try {
@@ -458,6 +487,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 	/**
 	 * populate the lot table.
 	 */
+	@SuppressWarnings("serial")
 	private void lotListAction() {
 		try {
 			mLots = db.getLots();
@@ -476,9 +506,15 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 		
 		pnlContent.removeAll();
 		pnlSouth.removeAll();
-		table = new JTable(data, mLotColNames);
-		table.getModel().addTableModelListener(this);
-		scrollPane = new JScrollPane(table);
+		mLotTable = new JTable(data, mLotColNames) {
+		    @Override
+		    public boolean isCellEditable(int row, int column) {                
+		        return !(column == 0);               
+		    };
+		};
+		mLotTable.getTableHeader().setReorderingAllowed(false);
+		mLotTable.getModel().addTableModelListener(this);
+		scrollPane = new JScrollPane(mLotTable);
 		pnlContent.add(scrollPane);
 		pnlContent.revalidate();
 		pnlSouth.add(pnlAddLot);
@@ -506,9 +542,10 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 		
 		pnlContent.removeAll();
 		pnlSouth.removeAll();
-		table = new JTable(data, mSpaceColNames);
-		table.getModel().addTableModelListener(this);
-		scrollPane = new JScrollPane(table);
+		mSpaceTable = new JTable(data, mSpaceColNames);
+		mSpaceTable.getTableHeader().setReorderingAllowed(false);
+		mSpaceTable.getModel().addTableModelListener(this);
+		scrollPane = new JScrollPane(mSpaceTable);
 		pnlContent.add(scrollPane);
 		pnlContent.revalidate();
 		pnlSouth.add(pnlAddSpace);
@@ -538,9 +575,9 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 		
 		pnlContent.removeAll();
 		pnlSouth.removeAll();
-		table = new JTable(data, mLotColNames);
-		table.getModel().addTableModelListener(this);
-		scrollPane = new JScrollPane(table);
+		mLotTable = new JTable(data, mLotColNames);
+		mLotTable.getModel().addTableModelListener(this);
+		scrollPane = new JScrollPane(mLotTable);
 		pnlContent.add(scrollPane);
 		pnlContent.revalidate();
 		pnlSouth.add(pnlAddStaff);
