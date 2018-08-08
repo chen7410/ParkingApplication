@@ -43,11 +43,11 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
     private JButton mBtnAddLot, mBtnAddSpace, mBtnAddStaff;
     private JButton mBtnSpaceList, mBtnSpaceSearch;
     private JButton mBtnStaffList, mBtnStaffSearch;
-    
+
     private JPanel pnlStaffSearch;
     private JTextField txfStaffName;
     private JPanel pnlSpaceSearch;
-    
+
     private JButton mBtnReserveParking;
     private JButton mBtnAssignStaffParking;
     private JPanel pnlAssignStaffParking;
@@ -60,6 +60,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
     private JButton btnReserve;
     private JTextField[] txfReverseParkingField = new JTextField[5];
     private JTable mSpaceTable;
+    private JTable mStaffTable;
 
 
     /**
@@ -110,14 +111,14 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         try {
             if (theEvent.getSource() == mLotTable.getModel()) {
                 mDatabase.updateLot(row, columnName, data);
-
             } else if (theEvent.getSource() == mSpaceTable.getModel()) {
                 mDatabase.updateSpace(row, columnName, data);
+            } else if (theEvent.getSource() == mStaffTable.getModel()) {
+                mDatabase.updateStaff(row, columnName, data);
             }
 
         } catch (Exception theException) {
             JOptionPane.showMessageDialog(this, theException.getMessage());
-            return;
         }
     }
 
@@ -169,8 +170,6 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
             public boolean isCellEditable(int row, int column) {
                 return !(column == 0);
             }
-
-            ;
         };
         mLotTable.getTableHeader().setReorderingAllowed(false);
         JScrollPane scrollPane = new JScrollPane(mLotTable);
@@ -322,7 +321,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         JLabel[] txfStaffParkingLabel = new JLabel[2];
         JTextField[] txfStaffParkingField = new JTextField[2];
         String labelNames[] = {"Enter Staff Number: ", "Enter Space Number: "};
-        
+
         for (int i = 0; i < labelNames.length; i++) {
             JPanel panel = new JPanel();
             txfStaffParkingLabel[i] = new JLabel(labelNames[i]);
@@ -369,7 +368,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         JLabel[] txfAddStaffLabel = new JLabel[3];
         String labelNames[] = {"Enter Staff Number: ", "Enter Telephone Ext: ",
                 "Vehicle License Number: "};
-        
+
         for (int i = 0; i < labelNames.length; i++) {
             JPanel panel = new JPanel();
             txfAddStaffLabel[i] = new JLabel(labelNames[i]);
@@ -505,10 +504,10 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
      * populate the space table.
      */
     private void spaceListAction() {
-    	final String[] spaceColNames = {"spaceNumber",
+        final String[] spaceColNames = {"spaceNumber",
                 "spaceType",
                 "lotName"};
-    	List<Space> spaces;
+        List<Space> spaces;
         try {
             spaces = mDatabase.getSpaces();
         } catch (Exception exception) {
@@ -547,7 +546,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
             return;
         }
         String[] columnNames = {"staffNumber", "telephoneExt", "vehicleLicenseNumber"};
-        data = new Object[staffList.size()][columnNames.length];
+        Object[][] data = new Object[staffList.size()][columnNames.length];
         for (int i = 0; i < staffList.size(); i++) {
             data[i][0] = staffList.get(i).getStaffNumber();
             data[i][1] = staffList.get(i).getPhoneExt();
@@ -557,9 +556,14 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         pnlContent.removeAll();
         pnlSouth.removeAll();
 
-        mLotTable = new JTable(data, columnNames);
-        mLotTable.getModel().addTableModelListener(this);
-        JScrollPane scrollPane = new JScrollPane(mLotTable);
+        mStaffTable = new JTable(data, columnNames) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return !(column == 0);
+            }
+        };
+        mStaffTable.getModel().addTableModelListener(this);
+        JScrollPane scrollPane = new JScrollPane(mStaffTable);
         pnlContent.add(scrollPane);
         pnlContent.revalidate();
         pnlSouth.add(pnlAddStaff);
