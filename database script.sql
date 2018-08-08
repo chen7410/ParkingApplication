@@ -53,7 +53,7 @@ INSERT StaffSpace VALUES
 
 CREATE TABLE Staff (
   staffNumber INT PRIMARY KEY,
-  telephoneExt INT,
+  telephoneExt VARCHAR(10),
   vehicleLicenseNumber VARCHAR(20)
 );
 
@@ -70,4 +70,3 @@ CREATE TABLE SpaceBooking (
   visitorLicense VARCHAR(20),
   dateOfVisit DATETIME
 );
-

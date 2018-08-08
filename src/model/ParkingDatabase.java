@@ -257,7 +257,7 @@ public class ParkingDatabase {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new Exception("Unable to add Lot: " + e.getMessage());
+            throw new Exception("Unable to updateLot: " + e.getMessage());
         }
     }
 
