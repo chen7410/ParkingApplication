@@ -64,7 +64,7 @@ INSERT Staff VALUES
 
 
 CREATE TABLE SpaceBooking (
-  bookingID INT PRIMARY KEY,
+  bookingID SERIAL PRIMARY KEY,
   spaceNumber INT REFERENCES CoveredSpace(spaceNumber),
   staffNumber INT REFERENCES Staff(staffNumber),
   visitorLicense VARCHAR(20),
