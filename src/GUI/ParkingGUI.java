@@ -33,51 +33,31 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
             "location",
             "capacity",
             "floors"};
-    private List<Space> mSpaces;
-    private String[] mSpaceColNames = {"spaceNumber",
-            "spaceType",
-            "lotName"};
 
     private Object[][] data;
     private JTable mLotTable;
-    private JScrollPane scrollPane;
     private JPanel pnlLotSearch;
-    private JLabel lblLotName;
-    private JTextField txfLotName;
     private JButton btnLotSearch;
-
     private JPanel pnlAddLot;
-    private JLabel[] txfLabel = new JLabel[4];
-    private JTextField[] txfField = new JTextField[4];
+    private JTextField[] txfAddLotField = new JTextField[4];
     private JButton mBtnAddLot, mBtnAddSpace, mBtnAddStaff;
-
     private JButton mBtnSpaceList, mBtnSpaceSearch;
     private JButton mBtnStaffList, mBtnStaffSearch;
+    
     private JPanel pnlStaffSearch;
-    private JLabel lblStaffName;
     private JTextField txfStaffName;
-    private JButton btnStaffSearch;
     private JPanel pnlSpaceSearch;
-    private JButton btnSpaceSearch;
-    private JTextField txfSpaceName;
-    private JLabel lblSpaceName;
+    
     private JButton mBtnReserveParking;
     private JButton mBtnAssignStaffParking;
     private JPanel pnlAssignStaffParking;
-    private JLabel[] txfStaffParkingLabel = new JLabel[2];
-    private JTextField[] txfStaffParkingField = new JTextField[2];
-    private JButton mBtnAssign;
     private JPanel pnlSouth;
     private JPanel pnlAddSpace;
-    private JLabel[] txfAddSpaceLabel = new JLabel[3];
     private JTextField[] txfAddSpaceField = new JTextField[3];
     private JPanel pnlAddStaff;
-    private JLabel[] txfAddStaffLabel = new JLabel[3];
     private JTextField[] txfAddStaffField = new JTextField[3];
-    private JButton btnAddStaff;
     private JPanel pnlReserveParking;
     private JButton btnReserve;
-    private JLabel[] txfReserveParkingLabel = new JLabel[5];
     private JTextField[] txfReverseParkingField = new JTextField[5];
     private JTable mSpaceTable;
 
@@ -177,7 +157,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         pnlButtons.add(mBtnLotList);
         pnlButtons.add(mBtnSpaceList);
         pnlButtons.add(mBtnStaffList);
-        pnlButtons.add(mBtnStaffSearch);
+//        pnlButtons.add(mBtnStaffSearch);
         pnlButtons.add(mBtnReserveParking);
         pnlButtons.add(mBtnAssignStaffParking);
         add(pnlButtons, BorderLayout.NORTH);
@@ -193,7 +173,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
             ;
         };
         mLotTable.getTableHeader().setReorderingAllowed(false);
-        scrollPane = new JScrollPane(mLotTable);
+        JScrollPane scrollPane = new JScrollPane(mLotTable);
         pnlContent.add(scrollPane);
         mLotTable.getModel().addTableModelListener(this);
 
@@ -208,12 +188,13 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         pnlAddLot.setLayout(new GridLayout(5, 0));
         String labelNames[] = {"Enter Lot Name: ", "Enter Location: ", "Enter Capacity: ",
                 "Enter Floors: "};
+        JLabel[] txfLabel = new JLabel[4];
         for (int i = 0; i < labelNames.length; i++) {
             JPanel panel = new JPanel();
             txfLabel[i] = new JLabel(labelNames[i]);
-            txfField[i] = new JTextField(25);
+            txfAddLotField[i] = new JTextField(25);
             panel.add(txfLabel[i]);
-            panel.add(txfField[i]);
+            panel.add(txfAddLotField[i]);
             pnlAddLot.add(panel);
         }
         JPanel panel = new JPanel();
@@ -311,17 +292,17 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
      * and populate the GUI again.
      */
     private void addLotAction() {
-        if (Integer.parseInt(txfField[2].getText()) < 1 ||
-                Integer.parseInt(txfField[3].getText()) < 1) {
+        if (Integer.parseInt(txfAddLotField[2].getText()) < 1 ||
+                Integer.parseInt(txfAddLotField[3].getText()) < 1) {
             JOptionPane.showMessageDialog(this, "Capacity and floors must be greater than 0");
-            for (int i = 0; i < txfField.length; i++) {
-                txfField[i].setText("");
+            for (int i = 0; i < txfAddLotField.length; i++) {
+                txfAddLotField[i].setText("");
             }
             return;
         }
 
-        Lot lot = new Lot(txfField[0].getText(), txfField[1].getText(),
-                Integer.parseInt(txfField[2].getText()), Integer.parseInt(txfField[3].getText()));
+        Lot lot = new Lot(txfAddLotField[0].getText(), txfAddLotField[1].getText(),
+                Integer.parseInt(txfAddLotField[2].getText()), Integer.parseInt(txfAddLotField[3].getText()));
         try {
             mDatabase.addLot(lot);
         } catch (Exception exception) {
@@ -329,8 +310,8 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
             return;
         }
         JOptionPane.showMessageDialog(null, "Added Successfully!");
-        for (int i = 0; i < txfField.length; i++) {
-            txfField[i].setText("");
+        for (int i = 0; i < txfAddLotField.length; i++) {
+            txfAddLotField[i].setText("");
         }
         lotListAction();
     }
@@ -338,7 +319,10 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
     private void createPanelAssignStaffParking() {
         pnlAssignStaffParking = new JPanel();
         pnlAssignStaffParking.setLayout(new GridLayout(3, 0));
+        JLabel[] txfStaffParkingLabel = new JLabel[2];
+        JTextField[] txfStaffParkingField = new JTextField[2];
         String labelNames[] = {"Enter Staff Number: ", "Enter Space Number: "};
+        
         for (int i = 0; i < labelNames.length; i++) {
             JPanel panel = new JPanel();
             txfStaffParkingLabel[i] = new JLabel(labelNames[i]);
@@ -349,9 +333,9 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         }
 //		
         JPanel panel = new JPanel();
-        mBtnAssign = new JButton("Assign");
-        mBtnAssign.addActionListener(this);
-        panel.add(mBtnAssign);
+        JButton btnAssign = new JButton("Assign");
+        btnAssign.addActionListener(this);
+        panel.add(btnAssign);
         pnlAssignStaffParking.add(panel);
 
     }
@@ -359,6 +343,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
     private void createPanelReserveVisitorParking() {
         pnlReserveParking = new JPanel();
         pnlReserveParking.setLayout(new GridLayout(6, 0));
+        JLabel[] txfReserveParkingLabel = new JLabel[5];
         String labelNames[] = {"Enter Booking ID: ", "Enter Space Number: ",
                 "Staff Number: ", "Vistor License: ", "Data of Visit: "};
         for (int i = 0; i < labelNames.length; i++) {
@@ -381,8 +366,10 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
     private void createPanelAddStaff() {
         pnlAddStaff = new JPanel();
         pnlAddStaff.setLayout(new GridLayout(4, 0));
+        JLabel[] txfAddStaffLabel = new JLabel[3];
         String labelNames[] = {"Enter Staff Number: ", "Enter Telephone Ext: ",
                 "Vehicle License Number: "};
+        
         for (int i = 0; i < labelNames.length; i++) {
             JPanel panel = new JPanel();
             txfAddStaffLabel[i] = new JLabel(labelNames[i]);
@@ -393,9 +380,9 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         }
 
         JPanel panel = new JPanel();
-        btnAddStaff = new JButton("Add Staff");
-        btnAddStaff.addActionListener(this);
-        panel.add(btnAddStaff);
+        mBtnAddStaff = new JButton("Add Staff");
+        mBtnAddStaff.addActionListener(this);
+        panel.add(mBtnAddStaff);
         pnlAddStaff.add(panel);
 
     }
@@ -403,6 +390,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
     private void createPanelAddSpace() {
         pnlAddSpace = new JPanel();
         pnlAddSpace.setLayout(new GridLayout(4, 0));
+        JLabel[] txfAddSpaceLabel = new JLabel[3];
         String labelNames[] = {"Enter Space Number: ", "Enter Space Type: ", "Enter Lot Name: "};
         for (int i = 0; i < labelNames.length; i++) {
             JPanel panel = new JPanel();
@@ -421,9 +409,9 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 
     private void createStaffSearch() {
         pnlStaffSearch = new JPanel();
-        lblStaffName = new JLabel("Enter Staff Number: ");
+        JLabel lblStaffName = new JLabel("Enter Staff Number: ");
         txfStaffName = new JTextField(25);
-        btnStaffSearch = new JButton("Search");
+        JButton btnStaffSearch = new JButton("Search");
         btnStaffSearch.addActionListener(this);
         pnlStaffSearch.add(lblStaffName);
         pnlStaffSearch.add(txfStaffName);
@@ -433,9 +421,9 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 
     private void createPanelSpaceSearch() {
         pnlSpaceSearch = new JPanel();
-        lblSpaceName = new JLabel("Enter Space Number: ");
-        txfSpaceName = new JTextField(25);
-        btnSpaceSearch = new JButton("Search");
+        JLabel lblSpaceName = new JLabel("Enter Space Number: ");
+        JTextField txfSpaceName = new JTextField(25);
+        JButton btnSpaceSearch = new JButton("Search");
         btnSpaceSearch.addActionListener(this);
         pnlSpaceSearch.add(lblSpaceName);
         pnlSpaceSearch.add(txfSpaceName);
@@ -444,8 +432,8 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 
     private void createPanelLotSearch() {
         pnlLotSearch = new JPanel();
-        lblLotName = new JLabel("Enter Lot Name: ");
-        txfLotName = new JTextField(25);
+        JLabel lblLotName = new JLabel("Enter Lot Name: ");
+        JTextField txfLotName = new JTextField(25);
         btnLotSearch = new JButton("Search");
         btnLotSearch.addActionListener(this);
         pnlLotSearch.add(lblLotName);
@@ -505,7 +493,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         };
         mLotTable.getTableHeader().setReorderingAllowed(false);
         mLotTable.getModel().addTableModelListener(this);
-        scrollPane = new JScrollPane(mLotTable);
+        JScrollPane scrollPane = new JScrollPane(mLotTable);
         pnlContent.add(scrollPane);
         pnlContent.revalidate();
         pnlSouth.add(pnlAddLot);
@@ -517,30 +505,33 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
      * populate the space table.
      */
     private void spaceListAction() {
+    	final String[] spaceColNames = {"spaceNumber",
+                "spaceType",
+                "lotName"};
+    	List<Space> spaces;
         try {
-            mSpaces = mDatabase.getSpaces();
+            spaces = mDatabase.getSpaces();
         } catch (Exception exception) {
             JOptionPane.showMessageDialog(this, exception.getMessage());
             return;
         }
 
-        data = new Object[mSpaces.size()][mSpaceColNames.length];
-        for (int i = 0; i < mSpaces.size(); i++) {
-            data[i][0] = mSpaces.get(i).getSpaceNumber();
-            data[i][1] = mSpaces.get(i).getSpaceType();
-            data[i][2] = mSpaces.get(i).getLotName();
+        data = new Object[spaces.size()][spaceColNames.length];
+        for (int i = 0; i < spaces.size(); i++) {
+            data[i][0] = spaces.get(i).getSpaceNumber();
+            data[i][1] = spaces.get(i).getSpaceType();
+            data[i][2] = spaces.get(i).getLotName();
         }
 
         pnlContent.removeAll();
         pnlSouth.removeAll();
-        mSpaceTable = new JTable(data, mSpaceColNames);
+        mSpaceTable = new JTable(data, spaceColNames);
         mSpaceTable.getTableHeader().setReorderingAllowed(false);
         mSpaceTable.getModel().addTableModelListener(this);
-        scrollPane = new JScrollPane(mSpaceTable);
+        JScrollPane scrollPane = new JScrollPane(mSpaceTable);
         pnlContent.add(scrollPane);
         pnlContent.revalidate();
         pnlSouth.add(pnlAddSpace);
-        pnlSouth.revalidate();
         this.repaint();
     }
 
@@ -568,7 +559,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 
         mLotTable = new JTable(data, columnNames);
         mLotTable.getModel().addTableModelListener(this);
-        scrollPane = new JScrollPane(mLotTable);
+        JScrollPane scrollPane = new JScrollPane(mLotTable);
         pnlContent.add(scrollPane);
         pnlContent.revalidate();
         pnlSouth.add(pnlAddStaff);
