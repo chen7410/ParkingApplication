@@ -88,7 +88,7 @@ public class ParkingDatabase {
 
 		Statement statement = null;
 		String query = "SELECT * FROM Lot";
-		mLots = new ArrayList<Lot>();
+		mLots = new ArrayList<>();
 
 		try {
 			statement = sConnection.createStatement();
@@ -111,6 +111,42 @@ public class ParkingDatabase {
 			}
 		}
 		return mLots;
+	}
+
+	/**
+	 * Returns a list of staff information from the database.
+	 *
+	 * @return list of all staff information
+	 * @throws Exception
+	 */
+	public List<Staff> getStaff() throws Exception {
+		if (sConnection == null) {
+			createConnection();
+		}
+
+		Statement statement = null;
+		String query = "SELECT * FROM Staff";
+		List<Staff> staffList = new ArrayList<>();
+
+		try {
+			statement = sConnection.createStatement();
+			ResultSet result = statement.executeQuery(query);
+			while (result.next()) {
+				int staffNumber = result.getInt("staffNumber");
+				int telephoneExt = result.getInt("telephoneExt");
+				String vehicleLicenseNumber = result.getString("vehicleLicenseNumber");
+
+				staffList.add(new Staff(staffNumber, telephoneExt,vehicleLicenseNumber));
+			}
+		} catch (SQLException theException) {
+			theException.printStackTrace();
+			throw new Exception("Unable to retrieve list of lots" + theException.getMessage());
+		} finally {
+			if (statement != null) {
+				statement.close();
+			}
+		}
+		return staffList;
 	}
 
 	/**
@@ -166,7 +202,7 @@ public class ParkingDatabase {
 	 * @throws Exception
 	 */
 	public void addLot(Lot theLot) throws Exception {
-		String sql = "INSERT Lot VALUES " + "(?, ?, ?, ?); ";
+		String sql = "INSERT Lot VALUES (?, ?, ?, ?); ";
 
 		PreparedStatement preparedStatement = null;
 		try {

@@ -19,4 +19,16 @@ public class Staff {
         myPhoneExt = thePhoneExt;
         myLicenseNumber = theLicenseNumber;
     }
+
+    public int getStaffNumber() {
+        return myStaffNumber;
+    }
+
+    public int getPhoneExt() {
+        return myPhoneExt;
+    }
+
+    public String getLicenseNumber() {
+        return myLicenseNumber;
+    }
 }
