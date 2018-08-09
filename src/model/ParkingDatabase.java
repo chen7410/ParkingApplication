@@ -1,6 +1,5 @@
 package model;
 
-import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -27,6 +26,7 @@ public class ParkingDatabase {
     private List<Lot> mLots;
     private List<Space> mSpaces;
     private List<Staff> mStaff;
+	private List<StaffSpace> mStaffSpace;
 
     /**
      * Creates a sql connection to MySQL using the properties for
@@ -113,6 +113,41 @@ public class ParkingDatabase {
             }
         }
         return mLots;
+    }
+    
+    /**
+     * Returns a list of staff space information from the database.
+     *
+     * @return list of all staff space information
+     * @throws Exception Exception when querying from the database.
+     */
+    public List<StaffSpace> getStaffSpace() throws Exception {
+        if (mConnection == null) {
+            createConnection();
+        }
+
+        Statement statement = null;
+        String query = "SELECT * FROM StaffSpace";
+        mStaffSpace = new ArrayList<>();
+
+        try {
+            statement = mConnection.createStatement();
+            ResultSet result = statement.executeQuery(query);
+            while (result.next()) {
+                int staffNumber = result.getInt("staffNumber");
+                int spaceNumber = result.getInt("spaceNumber");
+
+                mStaffSpace.add(new StaffSpace(staffNumber, spaceNumber));
+            }
+        } catch (SQLException theException) {
+            theException.printStackTrace();
+            throw new Exception("Unable to retrieve list of staffsSpaces" + theException.getMessage());
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
+        return mStaffSpace;
     }
 
     /**
@@ -321,4 +356,25 @@ public class ParkingDatabase {
             throw new Exception("Unable to add Space: " + e.getMessage());
         }
     }
+
+    /**
+     * Adds a new staff space to the database.
+     *
+     * @param theStaffSpace the staff space to be added to the database.
+     * @throws Exception Exception querying the database
+     */
+	public void addStaffSpace(StaffSpace theStaffSpace) throws Exception {
+		String query = "INSERT StaffSpace VALUES (?, ?); ";
+
+        try {
+            PreparedStatement preparedStatement = mConnection.prepareStatement(query);
+            preparedStatement.setInt(1, theStaffSpace.getStaffNumber());
+            preparedStatement.setInt(2, theStaffSpace.getSpaceNumber());
+            preparedStatement.executeUpdate();
+        } catch (SQLException theException) {
+            theException.printStackTrace();
+            throw new Exception("Unable to add new staff space: " + theException.getMessage());
+        }
+		
+	}
 }

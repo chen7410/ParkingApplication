@@ -14,19 +14,18 @@ import model.Lot;
 import model.ParkingDatabase;
 import model.Space;
 import model.Staff;
+import model.StaffSpace;
 
 /**
- * A user interface to view the movies, add a new movie and to update an existing movie.
- * The list is a table with all the movie information in it. The TableModelListener listens to
- * any changes to the cells to modify the values for reach movie.
+ * A user interface to database, a user can add and update an existing tuple.
  *
- * @author mmuppa
+ * @author Matthew Chen, Tuan Dinh
  */
 public class ParkingGUI extends JFrame implements ActionListener, TableModelListener {
 
     private static final long serialVersionUID = -6829838052136488913L;
     private JButton mBtnLotList, mBtnLotSearch;
-    private JPanel pnlButtons, pnlContent;
+    private JPanel pnlButtons, mPnlContent;
     private ParkingDatabase mDatabase;
     private List<Lot> mLots;
     private String[] mLotColNames = {"lotName",
@@ -49,11 +48,11 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
     private JPanel pnlSpaceSearch;
 
     private JButton mBtnReserveParking;
-    private JButton mBtnAssignStaffParking;
-    private JPanel pnlAssignStaffParking;
-    private JPanel pnlSouth;
+    private JButton mBtnStaffSpaceList;
+    private JPanel pnlAddStaffSpace;
+    private JPanel mPnlSouth;
     private JPanel pnlAddSpace;
-    private JTextField[] txfAddSpaceField = new JTextField[3];
+    private JTextField[] txfAddSpaceField = new JTextField[2];
     private JPanel pnlAddStaff;
     private JTextField[] txfAddStaffField = new JTextField[3];
     private JPanel pnlReserveParking;
@@ -61,6 +60,12 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
     private JTextField[] txfReverseParkingField = new JTextField[5];
     private JTable mSpaceTable;
     private JTable mStaffTable;
+    private String mSpaceType;
+	private JTable mStaffSpaceTable;
+	private JButton mBtnAddStaffSpace;
+	private JTextField[] txfAddStaffSpaceField = new JTextField[2];
+	private JButton mBtnCoveredSpace;
+    
 
 
     /**
@@ -148,23 +153,27 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 
         mBtnStaffSearch = new JButton("Staff Search");
         mBtnStaffSearch.addActionListener(this);
+        
+        mBtnCoveredSpace = new JButton("Covered Space List");
+        mBtnCoveredSpace.addActionListener(this);
 
         mBtnReserveParking = new JButton("Reserve Vistor Parking");
         mBtnReserveParking.addActionListener(this);
 
-        mBtnAssignStaffParking = new JButton("Assign Staff Parking");
-        mBtnAssignStaffParking.addActionListener(this);
+        mBtnStaffSpaceList = new JButton("Assign Staff Parking");
+        mBtnStaffSpaceList.addActionListener(this);
 
         pnlButtons.add(mBtnLotList);
         pnlButtons.add(mBtnSpaceList);
         pnlButtons.add(mBtnStaffList);
+        pnlButtons.add(mBtnCoveredSpace);
 //        pnlButtons.add(mBtnStaffSearch);
         pnlButtons.add(mBtnReserveParking);
-        pnlButtons.add(mBtnAssignStaffParking);
+        pnlButtons.add(mBtnStaffSpaceList);
         add(pnlButtons, BorderLayout.NORTH);
 
         //List Panel
-        pnlContent = new JPanel();
+        mPnlContent = new JPanel();
         mLotTable = new JTable(data, mLotColNames) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -173,14 +182,13 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         };
         mLotTable.getTableHeader().setReorderingAllowed(false);
         JScrollPane scrollPane = new JScrollPane(mLotTable);
-        pnlContent.add(scrollPane);
+        mPnlContent.add(scrollPane);
         mLotTable.getModel().addTableModelListener(this);
 
-//		//Search Panel
+		//Search Panel
         createPanelLotSearch();
         createPanelSpaceSearch();
         createStaffSearch();
-
 
         //Add Panel
         pnlAddLot = new JPanel();
@@ -201,27 +209,24 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         mBtnAddLot.addActionListener(this);
         panel.add(mBtnAddLot);
         pnlAddLot.add(panel);
-//		
 
         createPanelAddSpace();
         createPanelAddStaff();
-
         createPanelReserveVisitorParking();
-        createPanelAssignStaffParking();
+        createPanelAddStaffSpace();
 
-
-        add(pnlContent, BorderLayout.CENTER);
-
-        pnlSouth = new JPanel();
-        pnlSouth.add(pnlAddLot);
-        add(pnlSouth, BorderLayout.SOUTH);
+        
+        add(mPnlContent, BorderLayout.CENTER);
+        mPnlSouth = new JPanel();
+        mPnlSouth.add(pnlAddLot);
+        add(mPnlSouth, BorderLayout.SOUTH);
 
 
     }
 
     @Override
     public void actionPerformed(final ActionEvent theEvent) {
-        JButton btn = (JButton) theEvent.getSource();
+         Object btn = theEvent.getSource();
 
         if (btn == mBtnLotList) {
             lotListAction();
@@ -252,13 +257,50 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         } else if (btn == mBtnReserveParking) {
             showAvailableParking();
 
-        } else if (btn == mBtnAssignStaffParking) {
-            loadPanel(pnlAssignStaffParking);
-        }
+        } else if (btn == mBtnStaffSpaceList) {
+            staffSpaceListAction();
+            
+        } else if (btn == mBtnAddStaffSpace) {
+        	addStaffSpaceAction();
+        } else if (btn == mBtnCoveredSpace) {
+        	coveredSpaceListAction();
+        } 
+
 
     }
 
-    /**
+    private void coveredSpaceListAction() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void addStaffSpaceAction() {
+    	try {
+            if (Integer.parseInt(txfAddStaffSpaceField[0].getText()) < 0 || 
+            		Integer.parseInt(txfAddStaffSpaceField[0].getText()) < 0) {
+                JOptionPane.showMessageDialog(this, "Staff number or Space number "
+                		+ "cannot be negative");
+                for (int i = 0; i < txfAddStaffSpaceField.length; i++) {
+                	txfAddStaffSpaceField[i].setText("");
+                }
+                return;
+            }
+
+            StaffSpace staffSpace = new StaffSpace(Integer.parseInt(txfAddStaffSpaceField[0].getText()), 
+            		Integer.parseInt(txfAddStaffSpaceField[1].getText()));
+            mDatabase.addStaffSpace(staffSpace);
+            JOptionPane.showMessageDialog(null, "Added Successfully!");
+            for (int i = 0; i < txfAddStaffSpaceField.length; i++) {
+            	txfAddStaffSpaceField[i].setText("");
+            }
+            staffSpaceListAction();
+        } catch (Exception exception) {
+            JOptionPane.showMessageDialog(this, "Invalid input");
+        }
+		
+	}
+
+	/**
      * insert a new tuple to the database, space table,
      * and populate the GUI again.
      */
@@ -273,7 +315,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
             }
 
             Space space = new Space(Integer.parseInt(txfAddSpaceField[0].getText()),
-                    txfAddSpaceField[1].getText(), txfAddSpaceField[2].getText());
+                    mSpaceType, txfAddSpaceField[1].getText());
             mDatabase.addSpace(space);
             JOptionPane.showMessageDialog(null, "Added Successfully!");
             for (int i = 0; i < txfAddSpaceField.length; i++) {
@@ -343,27 +385,27 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 
     }
 
-    private void createPanelAssignStaffParking() {
-        pnlAssignStaffParking = new JPanel();
-        pnlAssignStaffParking.setLayout(new GridLayout(3, 0));
-        JLabel[] txfStaffParkingLabel = new JLabel[2];
-        JTextField[] txfStaffParkingField = new JTextField[2];
+    private void createPanelAddStaffSpace() {
+        pnlAddStaffSpace = new JPanel();
+        pnlAddStaffSpace.setLayout(new GridLayout(3, 0));
+        JLabel[] txfStaffSpaceLabel = new JLabel[2];
+        
         String labelNames[] = {"Enter Staff Number: ", "Enter Space Number: "};
 
         for (int i = 0; i < labelNames.length; i++) {
             JPanel panel = new JPanel();
-            txfStaffParkingLabel[i] = new JLabel(labelNames[i]);
-            txfStaffParkingField[i] = new JTextField(25);
-            panel.add(txfStaffParkingLabel[i]);
-            panel.add(txfStaffParkingField[i]);
-            pnlAssignStaffParking.add(panel);
+            txfStaffSpaceLabel[i] = new JLabel(labelNames[i]);
+            txfAddStaffSpaceField[i] = new JTextField(25);
+            panel.add(txfStaffSpaceLabel[i]);
+            panel.add(txfAddStaffSpaceField[i]);
+            pnlAddStaffSpace.add(panel);
         }
-//		
+		
         JPanel panel = new JPanel();
-        JButton btnAssign = new JButton("Assign");
-        btnAssign.addActionListener(this);
-        panel.add(btnAssign);
-        pnlAssignStaffParking.add(panel);
+        mBtnAddStaffSpace = new JButton("Assign");
+        mBtnAddStaffSpace.addActionListener(this);
+        panel.add(mBtnAddStaffSpace);
+        pnlAddStaffSpace.add(panel);
 
     }
 
@@ -417,8 +459,8 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
     private void createPanelAddSpace() {
         pnlAddSpace = new JPanel();
         pnlAddSpace.setLayout(new GridLayout(4, 0));
-        JLabel[] txfAddSpaceLabel = new JLabel[3];
-        String labelNames[] = {"Enter Space Number: ", "Enter Space Type: ", "Enter Lot Name: "};
+        JLabel[] txfAddSpaceLabel = new JLabel[2];
+        String labelNames[] = {"Enter Space Number: ", "Enter Lot Name: "};
         for (int i = 0; i < labelNames.length; i++) {
             JPanel panel = new JPanel();
             txfAddSpaceLabel[i] = new JLabel(labelNames[i]);
@@ -430,7 +472,34 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         JPanel panel = new JPanel();
         mBtnAddSpace = new JButton("Add Space");
         mBtnAddSpace.addActionListener(this);
+        
+        JRadioButton mRdoBtnCovered = new JRadioButton("Covered");
+        mRdoBtnCovered.setSelected(true);
+        mSpaceType = "C";
+        JRadioButton mRdoBtnUncovered = new JRadioButton("Uncovered");
+        mRdoBtnCovered.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mSpaceType = "C";
+				System.out.println("mSpaceType = " + mSpaceType);
+			}
+		});
+        mRdoBtnUncovered.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mSpaceType = "U";
+				System.out.println("mSpaceType = " + mSpaceType);
+			}
+		});
+        ButtonGroup group = new ButtonGroup();
+        
+        group.add(mRdoBtnCovered);
+        group.add(mRdoBtnUncovered);
         panel.add(mBtnAddSpace);
+        JPanel radioPnl = new JPanel();
+        radioPnl.add(mRdoBtnCovered);
+        radioPnl.add(mRdoBtnUncovered);
+        pnlAddSpace.add(radioPnl);
         pnlAddSpace.add(panel);
     }
 
@@ -466,7 +535,6 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         pnlLotSearch.add(lblLotName);
         pnlLotSearch.add(txfLotName);
         pnlLotSearch.add(btnLotSearch);
-//		System.out.println("pnlLotSearch");
     }
 
 
@@ -480,11 +548,11 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
     }
 
     private void loadPanel(JPanel thePanel) {
-        pnlContent.removeAll();
-        pnlSouth.removeAll();
-        pnlContent.add(thePanel);
-        pnlContent.revalidate();
-        pnlSouth.revalidate();
+        mPnlContent.removeAll();
+        mPnlSouth.removeAll();
+        mPnlContent.add(thePanel);
+        mPnlContent.revalidate();
+        mPnlSouth.revalidate();
         this.repaint();
     }
 
@@ -508,12 +576,12 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
             data[i][3] = mLots.get(i).getFloors();
         }
 
-        pnlContent.removeAll();
-        pnlSouth.removeAll();
+        mPnlContent.removeAll();
+        mPnlSouth.removeAll();
         mLotTable = new JTable(data, mLotColNames) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return !(column == 0);
+                return false;
             }
 
             ;
@@ -521,17 +589,18 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         mLotTable.getTableHeader().setReorderingAllowed(false);
         mLotTable.getModel().addTableModelListener(this);
         JScrollPane scrollPane = new JScrollPane(mLotTable);
-        pnlContent.add(scrollPane);
-        pnlContent.revalidate();
-        pnlSouth.add(pnlAddLot);
-        pnlSouth.revalidate();
+        mPnlContent.add(scrollPane);
+        mPnlContent.revalidate();
+        mPnlSouth.add(pnlAddLot);
+        mPnlSouth.revalidate();
         this.repaint();
     }
 
     /**
      * populate the space table.
      */
-    private void spaceListAction() {
+    @SuppressWarnings("serial")
+	private void spaceListAction() {
         final String[] spaceColNames = {"spaceNumber",
                 "spaceType",
                 "lotName"};
@@ -550,8 +619,8 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
             data[i][2] = spaces.get(i).getLotName();
         }
 
-        pnlContent.removeAll();
-        pnlSouth.removeAll();
+        mPnlContent.removeAll();
+        mPnlSouth.removeAll();
         mSpaceTable = new JTable(data, spaceColNames) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -561,16 +630,17 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         mSpaceTable.getTableHeader().setReorderingAllowed(false);
         mSpaceTable.getModel().addTableModelListener(this);
         JScrollPane scrollPane = new JScrollPane(mSpaceTable);
-        pnlContent.add(scrollPane);
-        pnlContent.revalidate();
-        pnlSouth.add(pnlAddSpace);
+        mPnlContent.add(scrollPane);
+        mPnlContent.revalidate();
+        mPnlSouth.add(pnlAddSpace);
         this.repaint();
     }
 
     /**
      * populate the staff table.
      */
-    private void staffListAction() {
+    @SuppressWarnings("serial")
+	private void staffListAction() {
         List<Staff> staffList;
         try {
             staffList = mDatabase.getStaff();
@@ -586,8 +656,8 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
             data[i][2] = staffList.get(i).getLicenseNumber();
         }
 
-        pnlContent.removeAll();
-        pnlSouth.removeAll();
+        mPnlContent.removeAll();
+        mPnlSouth.removeAll();
 
         mStaffTable = new JTable(data, columnNames) {
             @Override
@@ -598,10 +668,48 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         mStaffTable.getTableHeader().setReorderingAllowed(false);
         mStaffTable.getModel().addTableModelListener(this);
         JScrollPane scrollPane = new JScrollPane(mStaffTable);
-        pnlContent.add(scrollPane);
-        pnlContent.revalidate();
-        pnlSouth.add(pnlAddStaff);
-        pnlSouth.revalidate();
+        mPnlContent.add(scrollPane);
+        mPnlContent.revalidate();
+        mPnlSouth.add(pnlAddStaff);
+        mPnlSouth.revalidate();
+        this.repaint();
+    }
+    
+    /**
+     * populate the staff table.
+     */
+    @SuppressWarnings("serial")
+	private void staffSpaceListAction() {
+        List<StaffSpace> staffSpaceList;
+        try {
+            staffSpaceList = mDatabase.getStaffSpace();
+        } catch (Exception exception) {
+            JOptionPane.showMessageDialog(this, exception.getMessage());
+            return;
+        }
+        String[] columnNames = {"staffNumber", "spaceNumber"};
+        Object[][] data = new Object[staffSpaceList.size()][columnNames.length];
+        for (int i = 0; i < staffSpaceList.size(); i++) {
+            data[i][0] = staffSpaceList.get(i).getStaffNumber();
+            data[i][1] = staffSpaceList.get(i).getSpaceNumber();
+        }
+
+        mPnlContent.removeAll();
+        mPnlSouth.removeAll();
+
+        mStaffSpaceTable = new JTable(data, columnNames) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        mStaffSpaceTable.getTableHeader().setReorderingAllowed(false);
+        mStaffSpaceTable.getModel().addTableModelListener(this);
+        JScrollPane scrollPane = new JScrollPane(mStaffSpaceTable);
+        mPnlContent.add(scrollPane);
+        mPnlContent.revalidate();
+        mPnlSouth.add(pnlAddStaffSpace);
+        mPnlSouth.revalidate();
         this.repaint();
     }
 }
