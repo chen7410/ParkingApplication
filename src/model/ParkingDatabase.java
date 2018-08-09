@@ -1,5 +1,7 @@
 package model;
 
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -133,7 +135,7 @@ public class ParkingDatabase {
             ResultSet result = statement.executeQuery(query);
             while (result.next()) {
                 int staffNumber = result.getInt("staffNumber");
-                int telephoneExt = result.getInt("telephoneExt");
+                String telephoneExt = result.getString("telephoneExt");
                 String vehicleLicenseNumber = result.getString("vehicleLicenseNumber");
 
                 mStaff.add(new Staff(staffNumber, telephoneExt, vehicleLicenseNumber));
@@ -187,7 +189,6 @@ public class ParkingDatabase {
             preparedStatement.setString(3, theSpace.getLotName());
             preparedStatement.executeUpdate();
         } catch (SQLException theException) {
-            theException.printStackTrace();
             throw new Exception("Unable to add Space: " + theException.getMessage());
         }
     }
@@ -226,7 +227,7 @@ public class ParkingDatabase {
         try {
             PreparedStatement preparedStatement = mConnection.prepareStatement(query);
             preparedStatement.setInt(1, theStaff.getStaffNumber());
-            preparedStatement.setInt(2, theStaff.getPhoneExt());
+            preparedStatement.setString(2, theStaff.getPhoneExt());
             preparedStatement.setString(3, theStaff.getLicenseNumber());
             preparedStatement.executeUpdate();
         } catch (SQLException theException) {
@@ -236,56 +237,59 @@ public class ParkingDatabase {
     }
 
 
-    /**
-     * Modifies the lot information corresponding to the index in the list.
-     *
-     * @param row        index of the element in the list
-     * @param columnName attribute to modify
-     * @param data       value to supply
-     * @throws Exception Exception querying the database
-     */
-    public void updateLot(int row, String columnName, Object data) throws Exception {
-        Lot lot = mLots.get(row);
-        String lotName = lot.getLotName();
-        String sql = "update Lot set " + columnName + " = ?  where lotName = ? ";
-        try {
-            PreparedStatement preparedStatement = mConnection.prepareStatement(sql);
-            if (data instanceof String) {
-                preparedStatement.setString(1, (String) data);
-            }
-            preparedStatement.setString(2, lotName);
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new Exception("Unable to updateLot: " + e.getMessage());
-        }
-    }
+//    /**
+//     * Modifies the lot information corresponding to the index in the list.
+//     *
+//     * @param row        index of the element in the list
+//     * @param columnName attribute to modify
+//     * @param data       value to supply
+//     * @throws Exception Exception querying the database
+//     */
+//    public void updateLot(int row, String columnName, Object data) throws Exception {
+//        Lot lot = mLots.get(row);
+//        String lotName = lot.getLotName();
+//        String sql = "update Lot set " + columnName + " = ?  where lotName = ? ";
+//        try {
+//            PreparedStatement preparedStatement = mConnection.prepareStatement(sql);
+//            if (columnName.equals("location")) {
+//                preparedStatement.setString(1, (String) data);
+//            } else {
+//                preparedStatement.setInt(1, (int) data);
+//            }
+//            preparedStatement.setString(2, lotName);
+//            preparedStatement.executeUpdate();
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            throw new Exception("Unable to modify Lot: " + e.getMessage());
+//        }
+//    }
 
-    /**
-     * Modifies the space information corresponding to the index in the list.
-     *
-     * @param row        index of the element in the list
-     * @param columnName attribute to modify
-     * @param data       value to supply
-     * @throws Exception Exception querying the database
-     */
-    public void updateSpace(int row, String columnName, Object data) throws Exception {
-        Space space = mSpaces.get(row);
-        int spaceNumber = space.getSpaceNumber();
 
-        String sql = "update Space set " + columnName + " = ?  where spaceNumber = ? ";
-        try {
-            PreparedStatement preparedStatement = mConnection.prepareStatement(sql);
-            if (data instanceof String) {
-                preparedStatement.setString(1, (String) data);
-            }
-            preparedStatement.setInt(2, spaceNumber);
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new Exception("Unable to add Space: " + e.getMessage());
-        }
-    }
+//    /**
+//     * Modifies the space information corresponding to the index in the list.
+//     *
+//     * @param row        index of the element in the list
+//     * @param columnName attribute to modify
+//     * @param data       value to supply
+//     * @throws Exception Exception querying the database
+//     */
+//    public void updateSpace(int row, String columnName, Object data) throws Exception {
+//        Space space = mSpaces.get(row);
+//        int spaceNumber = space.getSpaceNumber();
+//
+//        String sql = "update Space set " + columnName + " = ?  where spaceNumber = ? ";
+//        try {
+//            PreparedStatement preparedStatement = mConnection.prepareStatement(sql);
+//            if (data instanceof String) {
+//                preparedStatement.setString(1, (String) data);
+//            }
+//            preparedStatement.setInt(2, spaceNumber);
+//            preparedStatement.executeUpdate();
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            throw new Exception("Unable to add Space: " + e.getMessage());
+//        }
+//    }
 
 
     /**
@@ -301,10 +305,14 @@ public class ParkingDatabase {
         String query = "update Staff set " + columnName + " = ?  where staffNumber = ? ";
         try {
             PreparedStatement preparedStatement = mConnection.prepareStatement(query);
-            if (data instanceof String) {
+            if (columnName.equals("telephoneExt")) {
+                String ext = (String) data;
+                if (!ext.matches("\\d+")) {
+                    throw new IllegalArgumentException("Phone extension must be a number");
+                }
                 preparedStatement.setString(1, (String) data);
             } else {
-                preparedStatement.setInt(1, (int) data);
+                preparedStatement.setString(1, (String) data);
             }
             preparedStatement.setInt(2, staff.getStaffNumber());
             preparedStatement.executeUpdate();
