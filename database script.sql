@@ -15,7 +15,7 @@ CREATE TABLE Space (
   spaceNumber INT PRIMARY KEY,
   spaceType   VARCHAR(20),
   lotName     VARCHAR(20),
-  FOREIGN KEY Space(lotName) REFERENCES Lot (lotName)
+  FOREIGN KEY (lotName) REFERENCES Lot (lotName)
 );
 
 INSERT Space
@@ -27,7 +27,7 @@ VALUES (1, 'uncover', 'North Lot'),
 CREATE TABLE CoveredSpace (
   spaceNumber INT PRIMARY KEY,
   monthlyRate FLOAT,
-  FOREIGN KEY CoveredSpace(spaceNumber) REFERENCES Space (spaceNumber)
+  FOREIGN KEY (spaceNumber) REFERENCES Space (spaceNumber)
 );
 
 INSERT CoveredSpace
@@ -36,7 +36,7 @@ VALUES (3, 100.0),
 
 CREATE TABLE UncoveredSpace (
   spaceNumber INT PRIMARY KEY,
-  FOREIGN KEY UncoveredSpace(spaceNumber) REFERENCES Space (spaceNumber)
+  FOREIGN KEY (spaceNumber) REFERENCES Space (spaceNumber)
 );
 
 INSERT UncoveredSpace
@@ -61,8 +61,8 @@ CREATE TABLE StaffSpace (
   staffNumber INT,
   spaceNumber INT,
   PRIMARY KEY (staffNumber, spaceNumber),
-  FOREIGN KEY StaffSpace(staffNumber) REFERENCES Staff (staffNumber),
-  FOREIGN KEY StaffSpace(spaceNumber) REFERENCES CoveredSpace (spaceNumber)
+  FOREIGN KEY (staffNumber) REFERENCES Staff (staffNumber),
+  FOREIGN KEY (spaceNumber) REFERENCES CoveredSpace (spaceNumber)
 );
 
 INSERT StaffSpace
@@ -75,6 +75,6 @@ CREATE TABLE SpaceBooking (
   staffNumber    INT,
   visitorLicense VARCHAR(20),
   dateOfVisit    DATETIME,
-  FOREIGN KEY SpaceBooking(spaceNumber) REFERENCES CoveredSpace (spaceNumber),
-  FOREIGN KEY SpaceBooking(staffNumber) REFERENCES Staff (staffNumber)
+  FOREIGN KEY (spaceNumber) REFERENCES CoveredSpace (spaceNumber),
+  FOREIGN KEY (staffNumber) REFERENCES Staff (staffNumber)
 );
