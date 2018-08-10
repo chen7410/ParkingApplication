@@ -10,11 +10,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
-import model.Lot;
-import model.ParkingDatabase;
-import model.Space;
-import model.Staff;
-import model.StaffSpace;
+import model.*;
 
 /**
  * A user interface to database, a user can add and update an existing tuple.
@@ -62,6 +58,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
     private JTable mStaffTable;
     private String mSpaceType;
 	private JTable mStaffSpaceTable;
+    private JTable mSpaceBookingTable;
 	private JButton mBtnAddStaffSpace;
 	private JTextField[] txfAddStaffSpaceField = new JTextField[2];
 	private JButton mBtnCoveredSpace;
@@ -123,7 +120,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
             }
 
         } catch (Exception theException) {
-            JOptionPane.showMessageDialog(this, theException.getMessage());
+            JOptionPane.showMessageDialog(this, theException);
         }
     }
 
@@ -255,8 +252,8 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         } else if (btn == mBtnAddStaff) {
             addStaffAction();
         } else if (btn == mBtnReserveParking) {
-            showAvailableParking();
-
+//            loadPanel();
+            spaceBookingAction();
         } else if (btn == mBtnStaffSpaceList) {
             staffSpaceListAction();
             
@@ -535,16 +532,6 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         pnlLotSearch.add(btnLotSearch);
     }
 
-
-    private void showAvailableParking() {
-        // TODO show available parking space for a specified staff of the day of visit.
-        //need to query how many space have used.
-
-        loadPanel(pnlReserveParking);
-
-
-    }
-
     private void loadPanel(JPanel thePanel) {
         mPnlContent.removeAll();
         mPnlSouth.removeAll();
@@ -643,7 +630,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         try {
             staffList = mDatabase.getStaff();
         } catch (Exception exception) {
-            JOptionPane.showMessageDialog(this, exception.getMessage());
+            JOptionPane.showMessageDialog(this, exception);
             return;
         }
         String[] columnNames = {"staffNumber", "telephoneExt", "vehicleLicenseNumber"};
@@ -669,6 +656,47 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         mPnlContent.add(scrollPane);
         mPnlContent.revalidate();
         mPnlSouth.add(pnlAddStaff);
+        mPnlSouth.revalidate();
+        this.repaint();
+    }
+
+    /**
+     * populate the staff table.
+     */
+    @SuppressWarnings("serial")
+    private void spaceBookingAction() {
+        List<SpaceBooking> bookingList;
+        try {
+            bookingList = mDatabase.getSpaceBooking();
+        } catch (Exception exception) {
+            JOptionPane.showMessageDialog(this, exception);
+            return;
+        }
+        String[] columnNames = {"spaceNumber", "dateOfVisit", "bookingID", "staffNumber", "visitorLicense"};
+        Object[][] data = new Object[bookingList.size()][columnNames.length];
+        for (int i = 0; i < bookingList.size(); i++) {
+            data[i][0] = bookingList.get(i).getSpaceNumber();
+            data[i][1] = bookingList.get(i).getVisitorDate();
+            data[i][2] = bookingList.get(i).getBookingID();
+            data[i][3] = bookingList.get(i).getStaffNumber();
+            data[i][4] = bookingList.get(i).getVisitorLicense();
+        }
+
+        mPnlContent.removeAll();
+        mPnlSouth.removeAll();
+
+        mSpaceBookingTable = new JTable(data, columnNames) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        mSpaceBookingTable.getTableHeader().setReorderingAllowed(false);
+        mSpaceBookingTable.getModel().addTableModelListener(this);
+        JScrollPane scrollPane = new JScrollPane(mSpaceBookingTable);
+        mPnlContent.add(scrollPane);
+        mPnlContent.revalidate();
+        mPnlSouth.add(pnlReserveParking);
         mPnlSouth.revalidate();
         this.repaint();
     }

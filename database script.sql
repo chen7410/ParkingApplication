@@ -20,9 +20,21 @@ CREATE TABLE Space (
 
 INSERT Space
 VALUES (1, 'Uncovered', 'North Lot'),
-       (2, 'Uncovered', 'North Lot'),
+       (2, 'Uncovered', 'West Lot'),
        (3, 'Covered', 'South Lot'),
-       (4, 'Covered', 'East Lot');
+       (4, 'Covered', 'East Lot'),
+       (5, 'Uncovered', 'West Lot'),
+       (6, 'Uncovered', 'North Lot'),
+       (7, 'Covered', 'South Lot'),
+       (8, 'Covered', 'East Lot'),
+       (9, 'Uncovered', 'North Lot'),
+       (10, 'Uncovered', 'West Lot'),
+       (11, 'Covered', 'South Lot'),
+       (12, 'Covered', 'East Lot'),
+       (13, 'Uncovered', 'West Lot'),
+       (14, 'Uncovered', 'North Lot'),
+       (15, 'Covered', 'South Lot'),
+       (16, 'Covered', 'East Lot');
 
 CREATE TABLE CoveredSpace (
   spaceNumber INT PRIMARY KEY,
@@ -32,7 +44,14 @@ CREATE TABLE CoveredSpace (
 
 INSERT CoveredSpace
 VALUES (3, 100.0),
-       (4, 100.0);
+       (4, 100.0),
+       (5, 23),
+       (7, 12),
+       (8, 65),
+       (11, 32),
+       (12, 53),
+       (15, 45),
+       (16, 100);
 
 CREATE TABLE UncoveredSpace (
   spaceNumber INT PRIMARY KEY,
@@ -76,3 +95,10 @@ CREATE TABLE SpaceBooking (
   FOREIGN KEY (spaceNumber) REFERENCES CoveredSpace (spaceNumber),
   FOREIGN KEY (staffNumber) REFERENCES Staff (staffNumber)
 );
+
+INSERT SpaceBooking
+VALUES (NULL, 11, 1, 'PL473', '2018-09-10'),
+       (NULL, 8, 1, 'V3H1CL3', '2018-09-12'),
+       (NULL, 12, 0, '4U70', '2018-09-10');
+
+

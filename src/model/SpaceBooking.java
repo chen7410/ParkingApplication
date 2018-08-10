@@ -17,7 +17,7 @@ public class SpaceBooking {
         if (theStaffNumber < 0) {
             throw new IllegalArgumentException("Staff number cannot be negative.");
         }
-        if (theVisitorLicense.isEmpty()) {
+        if (theVisitorLicense != null && theVisitorLicense.isEmpty()) {
             throw new IllegalArgumentException("License number cannot be empty");
         }
         myBookingID = theBookingID;
@@ -25,5 +25,25 @@ public class SpaceBooking {
         myStaffNumber = theStaffNumber;
         myVisitorLicense = theVisitorLicense;
         myVisitDate = theVisitDate;
+    }
+
+    public int getBookingID() {
+        return myBookingID;
+    }
+
+    public int getSpaceNumber() {
+        return mySpaceNumber;
+    }
+
+    public int getStaffNumber() {
+        return myStaffNumber;
+    }
+
+    public String getVisitorLicense() {
+        return myVisitorLicense;
+    }
+
+    public String getVisitorDate() {
+        return myVisitDate;
     }
 }

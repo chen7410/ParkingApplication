@@ -19,14 +19,15 @@ public class ParkingDatabase {
     private static final String USERNAME = "tuandinh";
     private static final String PASSWORD = "tuandinh";
     private static final String SERVER_NAME = "parkinglot.cfjkfmfnydy4.us-east-2.rds.amazonaws.com:3306/PARKING";
-//  private static String USERNAME = "chen7410";
+    //  private static String USERNAME = "chen7410";
 //	private static String PASSWORD = "AsgufNum";
 //	private static String SERVER_NAME = "cssgate.insttech.washington.edu/chen7410";
     private static Connection mConnection;
     private List<Lot> mLots;
     private List<Space> mSpaces;
     private List<Staff> mStaff;
-	private List<StaffSpace> mStaffSpace;
+    private List<StaffSpace> mStaffSpace;
+    private List<SpaceBooking> mSpaceBooking;
 
     /**
      * Creates a sql connection to MySQL using the properties for
@@ -114,7 +115,7 @@ public class ParkingDatabase {
         }
         return mLots;
     }
-    
+
     /**
      * Returns a list of staff space information from the database.
      *
@@ -148,6 +149,50 @@ public class ParkingDatabase {
             }
         }
         return mStaffSpace;
+    }
+
+    /**
+     * Returns a list of staff space information from the database.
+     *
+     * @return list of all staff space information
+     * @throws Exception Exception when querying from the database.
+     */
+    public List<SpaceBooking> getSpaceBooking() throws Exception {
+        if (mConnection == null) {
+            createConnection();
+        }
+
+        Statement statement = null;
+        String query = "SELECT spaceNumber,DATE(dateOfVisit) AS dateOfVisit,  bookingID, staffNumber, visitorLicense " +
+                "FROM CoveredSpace " +
+                "NATURAL LEFT JOIN SpaceBooking " +
+                "WHERE (dateOfVisit >= CURDATE() " +
+                "OR dateOfVisit IS NULL) " +
+                "AND spaceNumber NOT IN (SELECT spaceNumber FROM StaffSpace) " +
+                "ORDER BY spaceNumber, CASE WHEN dateOfVisit IS NULL THEN 1 ELSE 0 END, dateOfVisit DESC;";
+        mSpaceBooking = new ArrayList<>();
+
+        try {
+            statement = mConnection.createStatement();
+            ResultSet result = statement.executeQuery(query);
+            while (result.next()) {
+                int bookingID = result.getInt("bookingID");
+                int spaceNumber = result.getInt("spaceNumber");
+                int staffNumber = result.getInt("staffNumber");
+                String visitorLicense = result.getString("visitorLicense");
+                String dateOfVisit = result.getString("dateOfVisit");
+                System.out.println(visitorLicense);
+                mSpaceBooking.add(new SpaceBooking(bookingID, spaceNumber, staffNumber, visitorLicense, dateOfVisit));
+            }
+        } catch (SQLException theException) {
+            theException.printStackTrace();
+            throw new Exception("Unable to retrieve list of booking " + theException.getMessage());
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
+        return mSpaceBooking;
     }
 
     /**
@@ -363,8 +408,8 @@ public class ParkingDatabase {
      * @param theStaffSpace the staff space to be added to the database.
      * @throws Exception Exception querying the database
      */
-	public void addStaffSpace(StaffSpace theStaffSpace) throws Exception {
-		String query = "INSERT StaffSpace VALUES (?, ?); ";
+    public void addStaffSpace(StaffSpace theStaffSpace) throws Exception {
+        String query = "INSERT StaffSpace VALUES (?, ?); ";
 
         try {
             PreparedStatement preparedStatement = mConnection.prepareStatement(query);
@@ -375,6 +420,6 @@ public class ParkingDatabase {
             theException.printStackTrace();
             throw new Exception("Unable to add new staff space: " + theException.getMessage());
         }
-		
-	}
+
+    }
 }
