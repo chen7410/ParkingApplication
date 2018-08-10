@@ -62,6 +62,10 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
 	private JButton mBtnAddStaffSpace;
 	private JTextField[] txfAddStaffSpaceField = new JTextField[2];
 	private JButton mBtnCoveredSpace;
+	private JPanel pnlAddCoveredSpace;
+	private JTextField[] txfAddCoveredSpaceField = new JTextField[2];
+	private JButton mBtnAddCoveredSpace;
+	private JTable mCoveredSpaceTable;
     
 
 
@@ -91,7 +95,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         }
         createComponents();
         setVisible(true);
-        setSize(700, 500);
+        setSize(700, 700);
     }
 
     /**
@@ -211,6 +215,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         createPanelAddStaff();
         createPanelReserveVisitorParking();
         createPanelAddStaffSpace();
+        createPanelAddCoveredSpace();
 
         
         add(mPnlContent, BorderLayout.CENTER);
@@ -252,7 +257,6 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         } else if (btn == mBtnAddStaff) {
             addStaffAction();
         } else if (btn == mBtnReserveParking) {
-//            loadPanel();
             spaceBookingAction();
         } else if (btn == mBtnStaffSpaceList) {
             staffSpaceListAction();
@@ -261,20 +265,59 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         	addStaffSpaceAction();
         } else if (btn == mBtnCoveredSpace) {
         	coveredSpaceListAction();
-        } 
+        } else if (btn == mBtnAddCoveredSpace) {
+        	addCoveredSpaceAction();
+        } else if (btn == btnReserve) {
+        	reserveParkingAction();
+        }
 
 
     }
 
-    private void coveredSpaceListAction() {
+	private void reserveParkingAction() {
 		// TODO Auto-generated method stub
+		
+	}
+
+	@SuppressWarnings("serial")
+	private void coveredSpaceListAction() {
+		final String[] coveredSpaceColNames = {"spaceNumber", "monthlyRate"};
+        List<CoveredSpace> coveredSpaces;
+        try {
+            coveredSpaces = mDatabase.getCoveredSpaces();
+        } catch (Exception theException) {
+            JOptionPane.showMessageDialog(this, theException.getMessage());
+            return;
+        }
+
+        data = new Object[coveredSpaces.size()][coveredSpaceColNames.length];
+        for (int i = 0; i < coveredSpaces.size(); i++) {
+            data[i][0] = coveredSpaces.get(i).getSpaceNumber();
+            data[i][1] = coveredSpaces.get(i).getMonthlyRate();
+        }
+
+        mPnlContent.removeAll();
+        mPnlSouth.removeAll();
+        mCoveredSpaceTable = new JTable(data, coveredSpaceColNames) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        mCoveredSpaceTable.getTableHeader().setReorderingAllowed(false);
+        mCoveredSpaceTable.getModel().addTableModelListener(this);
+        JScrollPane scrollPane = new JScrollPane(mCoveredSpaceTable);
+        mPnlContent.add(scrollPane);
+        mPnlContent.revalidate();
+        mPnlSouth.add(pnlAddCoveredSpace);
+        this.repaint();
 		
 	}
 
 	private void addStaffSpaceAction() {
     	try {
             if (Integer.parseInt(txfAddStaffSpaceField[0].getText()) < 0 || 
-            		Integer.parseInt(txfAddStaffSpaceField[0].getText()) < 0) {
+            		Integer.parseInt(txfAddStaffSpaceField[1].getText()) < 0) {
                 JOptionPane.showMessageDialog(this, "Staff number or Space number "
                 		+ "cannot be negative");
                 for (final JTextField aTxfAddStaffSpaceField : txfAddStaffSpaceField) {
@@ -291,6 +334,8 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
                 aTxfAddStaffSpaceField.setText("");
             }
             staffSpaceListAction();
+        } catch (final NumberFormatException theException) {
+            JOptionPane.showMessageDialog(this, "Staff number or Space number must be numbers");
         } catch (final Exception theException) {
             JOptionPane.showMessageDialog(this, theException);
         }
@@ -374,11 +419,40 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
                 aTxfAddStaffField.setText("");
             }
             staffListAction();
+        } catch (final NumberFormatException theException) {
+            JOptionPane.showMessageDialog(this, "Staff number must be a number");
         } catch (final Exception theException) {
             JOptionPane.showMessageDialog(this, theException.toString());
         }
 
     }
+    
+    private void addCoveredSpaceAction() {
+    	try {
+    		System.out.println(txfAddCoveredSpaceField[0].getText().toString());
+            if (Integer.parseInt(txfAddCoveredSpaceField[0].getText()) < 1 ||
+            		Float.parseFloat(txfAddCoveredSpaceField[1].getText()) < 0) {
+            	
+                JOptionPane.showMessageDialog(this, "Space number and monthly rate must be greater than 0");
+                for (final JTextField aTxfAddCoveredSpaceField : txfAddCoveredSpaceField) {
+                    aTxfAddCoveredSpaceField.setText("");
+                }
+                return;
+            }
+
+            CoveredSpace coveredSpace = new CoveredSpace(Integer.parseInt(txfAddCoveredSpaceField[0].getText()),
+            		Float.parseFloat(txfAddCoveredSpaceField[1].getText()));
+            mDatabase.addCoveredSpace(coveredSpace);
+            JOptionPane.showMessageDialog(null, "Added Successfully!");
+            for (final JTextField aTxfAddCoveredSpaceField : txfAddCoveredSpaceField) {
+                aTxfAddCoveredSpaceField.setText("");
+            }
+            coveredSpaceListAction();
+        } catch (Exception exception) {
+            JOptionPane.showMessageDialog(this, "Invalid input.");
+        }
+		
+	}
 
     private void createPanelAddStaffSpace() {
         pnlAddStaffSpace = new JPanel();
@@ -448,6 +522,29 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         mBtnAddStaff.addActionListener(this);
         panel.add(mBtnAddStaff);
         pnlAddStaff.add(panel);
+
+    }
+    
+    private void createPanelAddCoveredSpace() {
+        pnlAddCoveredSpace = new JPanel();
+        pnlAddCoveredSpace.setLayout(new GridLayout(4, 0));
+        JLabel[] txfAddCoveredSpaceLabel = new JLabel[3];
+        String labelNames[] = {"Enter Space Number: ", "Enter Monthly Rate: "};
+
+        for (int i = 0; i < labelNames.length; i++) {
+            JPanel panel = new JPanel();
+            txfAddCoveredSpaceLabel[i] = new JLabel(labelNames[i]);
+            txfAddCoveredSpaceField[i] = new JTextField(25);
+            panel.add(txfAddCoveredSpaceLabel[i]);
+            panel.add(txfAddCoveredSpaceField[i]);
+            pnlAddCoveredSpace.add(panel);
+        }
+
+        JPanel panel = new JPanel();
+        mBtnAddCoveredSpace = new JButton("Add Covered Space");
+        mBtnAddCoveredSpace.addActionListener(this);
+        panel.add(mBtnAddCoveredSpace);
+        pnlAddCoveredSpace.add(panel);
 
     }
 
@@ -706,18 +803,18 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
      */
     @SuppressWarnings("serial")
 	private void staffSpaceListAction() {
-        List<StaffSpace> staffSpaceList;
+        List<CoveredSpace> staffSpaceList;
         try {
             staffSpaceList = mDatabase.getStaffSpace();
         } catch (Exception exception) {
             JOptionPane.showMessageDialog(this, exception.getMessage());
             return;
         }
-        String[] columnNames = {"staffNumber", "spaceNumber"};
+        String[] columnNames = {"spaceNumber", "monthlyRate"};
         Object[][] data = new Object[staffSpaceList.size()][columnNames.length];
         for (int i = 0; i < staffSpaceList.size(); i++) {
-            data[i][0] = staffSpaceList.get(i).getStaffNumber();
-            data[i][1] = staffSpaceList.get(i).getSpaceNumber();
+            data[i][0] = staffSpaceList.get(i).getSpaceNumber();
+            data[i][1] = staffSpaceList.get(i).getMonthlyRate();
         }
 
         mPnlContent.removeAll();
