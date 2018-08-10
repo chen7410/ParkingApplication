@@ -95,7 +95,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         }
         createComponents();
         setVisible(true);
-        setSize(700, 500);
+        setSize(700, 700);
     }
 
     /**
@@ -267,10 +267,17 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         	coveredSpaceListAction();
         } else if (btn == mBtnAddCoveredSpace) {
         	addCoveredSpaceAction();
+        } else if (btn == btnReserve) {
+        	reserveParkingAction();
         }
 
 
     }
+
+	private void reserveParkingAction() {
+		// TODO Auto-generated method stub
+		
+	}
 
 	@SuppressWarnings("serial")
 	private void coveredSpaceListAction() {
@@ -421,7 +428,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
     }
     
     private void addCoveredSpaceAction() {
-    	try {//TODO sth w
+    	try {
     		System.out.println(txfAddCoveredSpaceField[0].getText().toString());
             if (Integer.parseInt(txfAddCoveredSpaceField[0].getText()) < 1 ||
             		Float.parseFloat(txfAddCoveredSpaceField[1].getText()) < 0) {
@@ -442,7 +449,6 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
             }
             coveredSpaceListAction();
         } catch (Exception exception) {
-        	exception.printStackTrace();
             JOptionPane.showMessageDialog(this, "Invalid input.");
         }
 		
@@ -530,7 +536,7 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
             txfAddCoveredSpaceLabel[i] = new JLabel(labelNames[i]);
             txfAddCoveredSpaceField[i] = new JTextField(25);
             panel.add(txfAddCoveredSpaceLabel[i]);
-            panel.add(txfAddStaffField[i]);
+            panel.add(txfAddCoveredSpaceField[i]);
             pnlAddCoveredSpace.add(panel);
         }
 
@@ -797,18 +803,18 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
      */
     @SuppressWarnings("serial")
 	private void staffSpaceListAction() {
-        List<StaffSpace> staffSpaceList;
+        List<CoveredSpace> staffSpaceList;
         try {
             staffSpaceList = mDatabase.getStaffSpace();
         } catch (Exception exception) {
             JOptionPane.showMessageDialog(this, exception.getMessage());
             return;
         }
-        String[] columnNames = {"staffNumber", "spaceNumber"};
+        String[] columnNames = {"spaceNumber", "monthlyRate"};
         Object[][] data = new Object[staffSpaceList.size()][columnNames.length];
         for (int i = 0; i < staffSpaceList.size(); i++) {
-            data[i][0] = staffSpaceList.get(i).getStaffNumber();
-            data[i][1] = staffSpaceList.get(i).getSpaceNumber();
+            data[i][0] = staffSpaceList.get(i).getSpaceNumber();
+            data[i][1] = staffSpaceList.get(i).getMonthlyRate();
         }
 
         mPnlContent.removeAll();
