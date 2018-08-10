@@ -1,12 +1,7 @@
 package model;
 
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -181,7 +176,6 @@ public class ParkingDatabase {
                 int staffNumber = result.getInt("staffNumber");
                 String visitorLicense = result.getString("visitorLicense");
                 String dateOfVisit = result.getString("dateOfVisit");
-                System.out.println(visitorLicense);
                 mSpaceBooking.add(new SpaceBooking(bookingID, spaceNumber, staffNumber, visitorLicense, dateOfVisit));
             }
         } catch (SQLException theException) {
@@ -313,6 +307,30 @@ public class ParkingDatabase {
         } catch (SQLException theException) {
             theException.printStackTrace();
             throw new Exception("Unable to add new staff: " + theException.getMessage());
+        }
+    }
+
+
+    /**
+     * Adds a new space booking to the database.
+     *
+     * @param theSpaceBooking the space booking to be added to the database.
+     * @throws Exception Exception querying the database
+     */
+    public void addSpaceBooking(final SpaceBooking theSpaceBooking) throws Exception {
+        String query = "INSERT SpaceBooking VALUES (?, ?, ?, ?, ?); ";
+
+        try {
+            PreparedStatement preparedStatement = mConnection.prepareStatement(query);
+            preparedStatement.setNull(1, Types.INTEGER);
+            preparedStatement.setInt(2, theSpaceBooking.getSpaceNumber());
+            preparedStatement.setInt(3, theSpaceBooking.getStaffNumber());
+            preparedStatement.setString(4, theSpaceBooking.getVisitorLicense());
+            preparedStatement.setString(5, theSpaceBooking.getVisitorDate());
+            preparedStatement.executeUpdate();
+        } catch (SQLException theException) {
+            theException.printStackTrace();
+            throw new Exception("Unable to add new space booking: " + theException.getMessage());
         }
     }
 
