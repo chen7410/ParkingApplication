@@ -1,12 +1,7 @@
 package model;
 
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +23,7 @@ public class ParkingDatabase {
     private List<Staff> mStaff;
     private List<StaffSpace> mStaffSpace;
     private List<SpaceBooking> mSpaceBooking;
+    private List<CoveredSpace> mCoveredSpace;
 
     /**
      * Creates a sql connection to MySQL using the properties for
@@ -122,23 +118,25 @@ public class ParkingDatabase {
      * @return list of all staff space information
      * @throws Exception Exception when querying from the database.
      */
-    public List<StaffSpace> getStaffSpace() throws Exception {
+    public List<CoveredSpace> getStaffSpace() throws Exception {
         if (mConnection == null) {
             createConnection();
         }
 
         Statement statement = null;
-        String query = "SELECT * FROM StaffSpace";
-        mStaffSpace = new ArrayList<>();
+        String query = "SELECT * FROM CoveredSpace WHERE spaceNumber NOT IN "
+                + "(SELECT spaceNumber FROM StaffSpace) AND "
+                + "spaceNumber NOT IN (SELECT spaceNumber FROM SpaceBooking)";
+        mCoveredSpace = new ArrayList<>();
 
         try {
             statement = mConnection.createStatement();
             ResultSet result = statement.executeQuery(query);
             while (result.next()) {
-                int staffNumber = result.getInt("staffNumber");
+                float monthlyRate = result.getFloat("monthlyRate");
                 int spaceNumber = result.getInt("spaceNumber");
 
-                mStaffSpace.add(new StaffSpace(staffNumber, spaceNumber));
+                mCoveredSpace.add(new CoveredSpace(spaceNumber, monthlyRate));
             }
         } catch (SQLException theException) {
             theException.printStackTrace();
@@ -148,7 +146,7 @@ public class ParkingDatabase {
                 statement.close();
             }
         }
-        return mStaffSpace;
+        return mCoveredSpace;
     }
 
     /**
@@ -443,6 +441,48 @@ public class ParkingDatabase {
             theException.printStackTrace();
             throw new Exception("Unable to add new staff space: " + theException.getMessage());
         }
+    }
 
+    public List<CoveredSpace> getCoveredSpaces() throws Exception{
+        if (mConnection == null) {
+            createConnection();
+        }
+
+        Statement statement = null;
+        String query = "SELECT * FROM CoveredSpace";
+        mCoveredSpace = new ArrayList<>();
+
+        try {
+            statement = mConnection.createStatement();
+            ResultSet result = statement.executeQuery(query);
+            while (result.next()) {
+                int spaceNumber = result.getInt("spaceNumber");
+                float monthlyRate = result.getFloat("monthlyRate");
+
+                mCoveredSpace.add(new CoveredSpace(spaceNumber, monthlyRate));
+            }
+        } catch (SQLException theException) {
+            theException.printStackTrace();
+            throw new Exception("Unable to retrieve list of Covered Space" + theException.getMessage());
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
+        return mCoveredSpace;
+    }
+
+    public void addCoveredSpace(CoveredSpace theCoveredSpace) throws Exception {
+        String query = "INSERT CoveredSpace VALUES (?, ?); ";
+
+        try {
+            PreparedStatement preparedStatement = mConnection.prepareStatement(query);
+            preparedStatement.setInt(1, theCoveredSpace.getSpaceNumber());
+            preparedStatement.setFloat(2, theCoveredSpace.getMonthlyRate());
+            preparedStatement.executeUpdate();
+        } catch (SQLException theException) {
+            theException.printStackTrace();
+            throw new Exception("Unable to add new staff: " + theException.getMessage());
+        }
     }
 }
