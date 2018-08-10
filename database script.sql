@@ -19,10 +19,10 @@ CREATE TABLE Space (
 );
 
 INSERT Space
-VALUES (1, 'uncover', 'North Lot'),
-       (2, 'uncover', 'North Lot'),
-       (3, 'cover', 'North Lot'),
-       (4, 'cover', 'North Lot');
+VALUES (1, 'Uncovered', 'North Lot'),
+       (2, 'Uncovered', 'North Lot'),
+       (3, 'Covered', 'South Lot'),
+       (4, 'Covered', 'East Lot');
 
 CREATE TABLE CoveredSpace (
   spaceNumber INT PRIMARY KEY,
@@ -45,8 +45,6 @@ VALUES (1),
 
 
 CREATE TABLE Staff (
-  staffNumber INT PRIMARY KEY,
-  telephoneExt VARCHAR(10),
   staffNumber          INT PRIMARY KEY,
   telephoneExt         VARCHAR(20),
   vehicleLicenseNumber VARCHAR(20)

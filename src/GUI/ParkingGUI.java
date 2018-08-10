@@ -280,8 +280,8 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
             		Integer.parseInt(txfAddStaffSpaceField[0].getText()) < 0) {
                 JOptionPane.showMessageDialog(this, "Staff number or Space number "
                 		+ "cannot be negative");
-                for (int i = 0; i < txfAddStaffSpaceField.length; i++) {
-                	txfAddStaffSpaceField[i].setText("");
+                for (final JTextField aTxfAddStaffSpaceField : txfAddStaffSpaceField) {
+                    aTxfAddStaffSpaceField.setText("");
                 }
                 return;
             }
@@ -290,12 +290,12 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
             		Integer.parseInt(txfAddStaffSpaceField[1].getText()));
             mDatabase.addStaffSpace(staffSpace);
             JOptionPane.showMessageDialog(null, "Added Successfully!");
-            for (int i = 0; i < txfAddStaffSpaceField.length; i++) {
-            	txfAddStaffSpaceField[i].setText("");
+            for (final JTextField aTxfAddStaffSpaceField : txfAddStaffSpaceField) {
+                aTxfAddStaffSpaceField.setText("");
             }
             staffSpaceListAction();
-        } catch (Exception exception) {
-            JOptionPane.showMessageDialog(this, "Invalid input");
+        } catch (final Exception theException) {
+            JOptionPane.showMessageDialog(this, theException);
         }
 		
 	}
@@ -308,8 +308,8 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         try {
             if (Integer.parseInt(txfAddSpaceField[0].getText()) < 1) {
                 JOptionPane.showMessageDialog(this, "Space number must be greater than 0");
-                for (int i = 0; i < txfAddSpaceField.length; i++) {
-                    txfAddSpaceField[i].setText("");
+                for (final JTextField aTxfAddSpaceField : txfAddSpaceField) {
+                    aTxfAddSpaceField.setText("");
                 }
                 return;
             }
@@ -318,8 +318,8 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
                     mSpaceType, txfAddSpaceField[1].getText());
             mDatabase.addSpace(space);
             JOptionPane.showMessageDialog(null, "Added Successfully!");
-            for (int i = 0; i < txfAddSpaceField.length; i++) {
-                txfAddSpaceField[i].setText("");
+            for (final JTextField aTxfAddSpaceField : txfAddSpaceField) {
+                aTxfAddSpaceField.setText("");
             }
             spaceListAction();
         } catch (Exception exception) {
@@ -343,18 +343,16 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
                     Integer.parseInt(txfAddLotField[2].getText()), Integer.parseInt(txfAddLotField[3].getText()));
             mDatabase.addLot(lot);
             JOptionPane.showMessageDialog(null, "Added Successfully!");
-            for (int i = 0; i < txfAddLotField.length; i++) {
-                txfAddLotField[i].setText("");
+            for (final JTextField aTxfAddLotField : txfAddLotField) {
+                aTxfAddLotField.setText("");
             }
             lotListAction();
-        } catch (NumberFormatException theException) {
+        } catch (final NumberFormatException theException) {
             JOptionPane.showMessageDialog(this, "Capacity and floors must be numbers");
-            return;
         } catch (IllegalArgumentException theException) {
             JOptionPane.showMessageDialog(this, "Invalid input");
-        } catch (Exception exception) {
-            JOptionPane.showMessageDialog(this, exception.getMessage());
-            return;
+        } catch (final Exception theException) {
+            JOptionPane.showMessageDialog(this, theException.toString());
         }
     }
 
@@ -366,8 +364,8 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
         try {
             if (Integer.parseInt(txfAddStaffField[0].getText()) < 0) {
                 JOptionPane.showMessageDialog(this, "Staff number cannot be negative");
-                for (int i = 0; i < txfAddStaffField.length; i++) {
-                    txfAddStaffField[i].setText("");
+                for (final JTextField aTxfAddStaffField : txfAddStaffField) {
+                    aTxfAddStaffField.setText("");
                 }
                 return;
             }
@@ -375,12 +373,12 @@ public class ParkingGUI extends JFrame implements ActionListener, TableModelList
             Staff staff = new Staff(Integer.parseInt(txfAddStaffField[0].getText()), txfAddStaffField[1].getText(), txfAddStaffField[2].getText());
             mDatabase.addStaff(staff);
             JOptionPane.showMessageDialog(null, "Added Successfully!");
-            for (int i = 0; i < txfAddStaffField.length; i++) {
-                txfAddStaffField[i].setText("");
+            for (final JTextField aTxfAddStaffField : txfAddStaffField) {
+                aTxfAddStaffField.setText("");
             }
             staffListAction();
-        } catch (Exception exception) {
-            JOptionPane.showMessageDialog(this, "Invalid input");
+        } catch (final Exception theException) {
+            JOptionPane.showMessageDialog(this, theException.toString());
         }
 
     }
