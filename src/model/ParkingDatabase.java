@@ -28,6 +28,7 @@ public class ParkingDatabase {
     private List<Staff> mStaff;
     private List<StaffSpace> mStaffSpace;
     private List<SpaceBooking> mSpaceBooking;
+	private List<CoveredSpace> mCoveredSpace;
 
     /**
      * Creates a sql connection to MySQL using the properties for
@@ -422,4 +423,39 @@ public class ParkingDatabase {
         }
 
     }
+
+	public List<CoveredSpace> getCoveredSpaces() throws Exception{
+		if (mConnection == null) {
+            createConnection();
+        }
+
+        Statement statement = null;
+        String query = "SELECT * FROM CoveredSpace";
+        mCoveredSpace = new ArrayList<>();
+
+        try {
+            statement = mConnection.createStatement();
+            ResultSet result = statement.executeQuery(query);
+            while (result.next()) {
+                int spaceNumber = result.getInt("spaceNumber");
+                float monthlyRate = result.getFloat("monthlyRate");
+
+                mCoveredSpace.add(new CoveredSpace(spaceNumber, monthlyRate));
+            }
+        } catch (SQLException theException) {
+            theException.printStackTrace();
+            throw new Exception("Unable to retrieve list of Covered Space" + theException.getMessage());
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
+        return mCoveredSpace;
+	}
+
+	public void addCoveredSpace(CoveredSpace coveredSpace) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
