@@ -1,18 +1,28 @@
 package model;
-
+/**
+ * Represents a Space with lotName, spaceBumber and space Type.
+ * @author Matthew Chen, Tuan Dinh
+ *
+ */
 public class Space {
 
     private int mySpaceNumber;
     private String myLotName;
     private String mySpaceType;
 
+    /**
+     * Initialize a sSpace.
+     * @param theSpaceNumber
+     * @param theSpaceType
+     * @param theLotName
+     */
     public Space(final int theSpaceNumber, final String theSpaceType, 
     		final String theLotName) {
         if (theSpaceNumber <= 0) {
-//            throw new IllegalArgumentException("Space number cannot be less than 1.");
+            throw new IllegalArgumentException("Space number cannot be less than 1.");
         }
 
-        if (theLotName.isEmpty()){
+        if (theLotName == null || theLotName.isEmpty()){
             throw new IllegalArgumentException("Lot name cannot be empty.");
         }
         
@@ -23,27 +33,28 @@ public class Space {
         myLotName = theLotName;
         mySpaceType = theSpaceType;
     }
-    
-    public Space(final int theSpaceNumber, final String theLotName) {
-        if (theSpaceNumber <= 0) {
-            throw new IllegalArgumentException("Space number cannot be less than 1.");
-        }
+ 
 
-        if (theLotName.isEmpty()){
-            throw new IllegalArgumentException("Lot name cannot be empty.");
-        }
-        mySpaceNumber = theSpaceNumber;
-        myLotName = theLotName;
-    }
-
+    /**
+     * return the space number of this Space.
+     * @return
+     */
     public int getSpaceNumber() {
         return mySpaceNumber;
     }
 
+    /**
+     * return the lot name of this Space
+     * @return
+     */
     public String getLotName() {
         return myLotName;
     }
     
+    /**
+     * return the space type of this Space.
+     * @return
+     */
     public String getSpaceType() {
     	return mySpaceType;
     }

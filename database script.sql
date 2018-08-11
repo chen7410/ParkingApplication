@@ -1,3 +1,5 @@
+DROP TABLE SpaceBooking, StaffSpace, UncoveredSpace, CoveredSpace, Space, Lot, Staff;
+
 CREATE TABLE Lot (
   lotName  VARCHAR(20) PRIMARY KEY,
   location VARCHAR(20),
@@ -45,7 +47,6 @@ CREATE TABLE CoveredSpace (
 INSERT CoveredSpace
 VALUES (3, 100.0),
        (4, 100.0),
-       (5, 23),
        (7, 12),
        (8, 65),
        (11, 32),

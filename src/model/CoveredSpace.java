@@ -1,5 +1,10 @@
 package model;
 
+/**
+ * Represent a covered space with space number and monthly rate.
+ * @author Matthew Chen, TuanDinh.
+ *
+ */
 public class CoveredSpace {
 
     private float myMonthlyRate;

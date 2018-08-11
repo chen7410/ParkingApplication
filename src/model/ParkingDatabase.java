@@ -11,17 +11,13 @@ import java.util.List;
  * @author Matthew Chen, Tuan Dinh
  */
 public class ParkingDatabase {
-    private static final String USERNAME = "tuandinh";
-    private static final String PASSWORD = "tuandinh";
-    private static final String SERVER_NAME = "parkinglot.cfjkfmfnydy4.us-east-2.rds.amazonaws.com:3306/PARKING";
-    //  private static String USERNAME = "chen7410";
-//	private static String PASSWORD = "AsgufNum";
-//	private static String SERVER_NAME = "cssgate.insttech.washington.edu/chen7410";
+    private static final String USERNAME = "chen7410";
+    private static final String PASSWORD = "AsgufNum";
+    private static final String SERVER_NAME = "cssgate.insttech.washington.edu/chen7410";
     private static Connection mConnection;
     private List<Lot> mLots;
     private List<Space> mSpaces;
     private List<Staff> mStaff;
-    private List<StaffSpace> mStaffSpace;
     private List<SpaceBooking> mSpaceBooking;
     private List<CoveredSpace> mCoveredSpace;
 
@@ -167,18 +163,31 @@ public class ParkingDatabase {
                 "WHERE (dateOfVisit >= CURDATE() " +
                 "OR dateOfVisit IS NULL) " +
                 "AND spaceNumber NOT IN (SELECT spaceNumber FROM StaffSpace) " +
-                "ORDER BY spaceNumber, CASE WHEN dateOfVisit IS NULL THEN 1 ELSE 0 END, dateOfVisit DESC;";
+                "ORDER BY spaceNumber, CASE WHEN dateOfVisit IS NULL THEN 1 ELSE 0 END, dateOfVisit;";
         mSpaceBooking = new ArrayList<>();
-
+        
         try {
             statement = mConnection.createStatement();
             ResultSet result = statement.executeQuery(query);
+            int amount = 0;
+            int lastID = -1;
             while (result.next()) {
                 int bookingID = result.getInt("bookingID");
                 int spaceNumber = result.getInt("spaceNumber");
                 int staffNumber = result.getInt("staffNumber");
                 String visitorLicense = result.getString("visitorLicense");
                 String dateOfVisit = result.getString("dateOfVisit");
+                if (lastID >= 0) {
+                	if (lastID != bookingID) {
+                		amount++;
+                	}
+                } else {
+                	amount++;
+                	lastID = bookingID;
+                }
+                if (amount > 20) {
+                	break;
+                }
                 mSpaceBooking.add(new SpaceBooking(bookingID, spaceNumber, staffNumber, visitorLicense, dateOfVisit));
             }
         } catch (SQLException theException) {
@@ -226,29 +235,6 @@ public class ParkingDatabase {
             }
         }
         return mStaff;
-    }
-
-    /**
-     * Filters the lot list to find the given lot name. Returns a list with the
-     * lot objects that match the lot name provided.
-     *
-     * @param theLotName
-     * @return list of lots that contain the lot name.
-     */
-    public List<Lot> getLots(String theLotName) throws Exception {
-        List<Lot> filterList = new ArrayList<Lot>();
-        try {
-            mLots = getLots();
-        } catch (SQLException theException) {
-            theException.printStackTrace();
-            throw new Exception("Unable to retrieve lots: " + theException.getMessage());
-        }
-        for (Lot lot : mLots) {
-            if (lot.getLotName().toLowerCase().contains(theLotName.toLowerCase())) {
-                filterList.add(lot);
-            }
-        }
-        return filterList;
     }
 
     /**
@@ -338,61 +324,6 @@ public class ParkingDatabase {
     }
 
 
-//    /**
-//     * Modifies the lot information corresponding to the index in the list.
-//     *
-//     * @param row        index of the element in the list
-//     * @param columnName attribute to modify
-//     * @param data       value to supply
-//     * @throws Exception Exception querying the database
-//     */
-//    public void updateLot(int row, String columnName, Object data) throws Exception {
-//        Lot lot = mLots.get(row);
-//        String lotName = lot.getLotName();
-//        String sql = "update Lot set " + columnName + " = ?  where lotName = ? ";
-//        try {
-//            PreparedStatement preparedStatement = mConnection.prepareStatement(sql);
-//            if (columnName.equals("location")) {
-//                preparedStatement.setString(1, (String) data);
-//            } else {
-//                preparedStatement.setInt(1, (int) data);
-//            }
-//            preparedStatement.setString(2, lotName);
-//            preparedStatement.executeUpdate();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            throw new Exception("Unable to modify Lot: " + e.getMessage());
-//        }
-//    }
-
-
-//    /**
-//     * Modifies the space information corresponding to the index in the list.
-//     *
-//     * @param row        index of the element in the list
-//     * @param columnName attribute to modify
-//     * @param data       value to supply
-//     * @throws Exception Exception querying the database
-//     */
-//    public void updateSpace(int row, String columnName, Object data) throws Exception {
-//        Space space = mSpaces.get(row);
-//        int spaceNumber = space.getSpaceNumber();
-//
-//        String sql = "update Space set " + columnName + " = ?  where spaceNumber = ? ";
-//        try {
-//            PreparedStatement preparedStatement = mConnection.prepareStatement(sql);
-//            if (data instanceof String) {
-//                preparedStatement.setString(1, (String) data);
-//            }
-//            preparedStatement.setInt(2, spaceNumber);
-//            preparedStatement.executeUpdate();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            throw new Exception("Unable to add Space: " + e.getMessage());
-//        }
-//    }
-
-
     /**
      * Modifies the staff information corresponding to the index in the list.
      *
@@ -472,6 +403,12 @@ public class ParkingDatabase {
         return mCoveredSpace;
     }
 
+    /**
+     * Adds a new covered space to the database.
+     *
+     * @param theCoveredSpace the staff space to be added to the database.
+     * @throws Exception Exception querying the database
+     */
     public void addCoveredSpace(CoveredSpace theCoveredSpace) throws Exception {
         String query = "INSERT CoveredSpace VALUES (?, ?); ";
 
@@ -482,7 +419,7 @@ public class ParkingDatabase {
             preparedStatement.executeUpdate();
         } catch (SQLException theException) {
             theException.printStackTrace();
-            throw new Exception("Unable to add new staff: " + theException.getMessage());
+            throw new Exception("Unable to add new CoveredSpace: " + theException.getMessage());
         }
     }
 }

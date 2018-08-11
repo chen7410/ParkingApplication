@@ -1,5 +1,10 @@
 package model;
 
+/**
+ * Represents a Staff Space with StaffNumber and SpaceNumber.
+ * @author Matthew Chen, Tuan Dinh
+ *
+ */
 public class StaffSpace {
     private int myStaffNumber;
     private int mySpaceNumber;
